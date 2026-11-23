@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}New administrator{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All users</a>
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">New administrator</h1>
+    <p class="page-head__lede">Administrators can verify identities, suspend and delete accounts, and open Django admin.</p>
+  </div>
+</header>
+<section class="sheet">
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" %}
+    <div class="form-grid form-grid--2">
+      {% include "partials/_field.html" with field=form.first_name %}
+      {% include "partials/_field.html" with field=form.last_name %}
+    </div>
+    {% include "partials/_field.html" with field=form.email %}
+    <div class="form-grid form-grid--2">
+      {% include "partials/_field.html" with field=form.password1 %}
+      {% include "partials/_field.html" with field=form.password2 %}
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn--primary">Create administrator</button>
+      <a class="btn btn--secondary" href="{% url 'users:manage' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -195,10 +195,10 @@ img { max-width: 100%; display: block; }
   border: 0; background: none; border-radius: var(--r-md); color: var(--text); text-decoration: none;
   font: inherit; font-size: var(--t-sm); cursor: pointer; text-align: start; }
 .menu__item:hover { background: var(--n-50); color: var(--text); }
-.nav-toggle { display: none; }
+.bar .nav-toggle { display: none; }
 @media (max-width: 899px) {
   .bar__inner { gap: var(--s-3); }
-  .nav-toggle { display: inline-flex; }
+  .bar .nav-toggle { display: inline-flex; }
   .nav { display: none; position: absolute; inset-inline: 0; top: var(--bar-h); flex-direction: column;
     align-items: stretch; padding: var(--s-3) var(--s-4) var(--s-4); background: var(--n-900); border-top: 1px solid var(--n-700); }
   .nav[data-open="true"] { display: flex; }
@@ -234,13 +234,14 @@ img { max-width: 100%; display: block; }
   .actions > .btn, .actions > form, .actions > form > .btn { width: 100%; }
   .actions__danger { margin-inline-start: 0; padding-inline-start: 0; padding-top: var(--s-4);
     margin-top: var(--s-2); border-top: 1px solid var(--line); width: 100%; }
+  .actions__danger > .btn, .actions__danger > form, .actions__danger > form > .btn { width: 100%; }
 }
 
 /* 7. Forms ---------------------------------------------------------------- */
 .form { display: flex; flex-direction: column; gap: var(--s-6); }
 .fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-4); }
 .fieldset__legend { padding: 0; margin-bottom: var(--s-1); font-size: var(--t-lg); font-weight: 600; }
-.fieldset__hint { margin-top: calc(-1 * var(--s-3)); font-size: var(--t-sm); color: var(--text-2); }
+.fieldset__hint { font-size: var(--t-sm); color: var(--text-2); }
 .form-grid { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .field { display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
@@ -273,6 +274,8 @@ img { max-width: 100%; display: block; }
 .drop:hover { border-color: var(--cobalt-600); background: var(--cobalt-50); }
 .drop:focus-within { border-color: var(--cobalt-600); box-shadow: 0 0 0 3px var(--cobalt-100); }
 .drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.drop__copy { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); }
+.drop__copy .icon { width: 24px; height: 24px; color: var(--cobalt-700); margin-bottom: var(--s-1); }
 .drop strong { color: var(--text); font-weight: 500; }
 .drop__preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .drop[data-filled="true"] .drop__copy { visibility: hidden; }
@@ -325,7 +328,7 @@ img { max-width: 100%; display: block; }
 .table__person { display: flex; align-items: center; gap: var(--s-3); min-width: 220px; }
 .table__person a { color: var(--text); font-weight: 500; text-decoration: none; }
 .table__person a:hover { color: var(--link); text-decoration: underline; }
-.table__person span { display: block; font-size: var(--t-xs); color: var(--text-3); }
+.table__person > div > span { display: block; font-size: var(--t-xs); color: var(--text-3); }
 .table__end { text-align: end; }
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; justify-content: space-between;
   padding: var(--s-4); border-bottom: 1px solid var(--line); }
@@ -392,7 +395,7 @@ img { max-width: 100%; display: block; }
 /* 14. Auth & home --------------------------------------------------------- */
 .auth { display: grid; grid-template-columns: minmax(0, 1fr); min-height: calc(100vh - var(--bar-h)); }
 @media (min-width: 1024px) { .auth { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
-.auth__side { background: var(--n-900); color: var(--n-100); padding: var(--s-8) var(--s-7); display: none; flex-direction: column; justify-content: space-between; gap: var(--s-8); }
+.auth__side { background: var(--n-900); color: var(--n-100); padding: var(--s-8) var(--s-7) var(--s-8) max(var(--s-7), calc((100vw - var(--page-max)) / 2 + var(--s-5))); display: none; flex-direction: column; justify-content: space-between; gap: var(--s-8); }
 @media (min-width: 1024px) { .auth__side { display: flex; } }
 .auth__claim { font-size: var(--t-3xl); color: var(--n-0); max-width: 14ch; letter-spacing: -0.025em; }
 .auth__sub { margin-top: var(--s-4); color: var(--n-300); max-width: 40ch; }
@@ -446,7 +449,7 @@ img { max-width: 100%; display: block; }
 /* Document viewer (admin: ID photo vs selfie) */
 .docs { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 640px) { .docs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.doc { display: flex; flex-direction: column; gap: var(--s-2); }
+.doc { margin: 0; display: flex; flex-direction: column; gap: var(--s-2); }
 .doc__label { font-size: var(--t-xs); color: var(--text-3); }
 .doc__frame { aspect-ratio: 4 / 3; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--n-100);
   display: grid; place-items: center; overflow: hidden; color: var(--text-3); font-size: var(--t-sm); }

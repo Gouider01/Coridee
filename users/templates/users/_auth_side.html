@@ -1,0 +1,20 @@
+{# Dark side panel of the sign-up and log-in pages. #}
+<aside class="auth__side" aria-label="About verification">
+  <div>
+    <p class="auth__claim">{{ claim }}</p>
+    <p class="auth__sub">{{ sub }}</p>
+  </div>
+  <div class="auth__specimen">
+    <div class="specimen">
+      <span class="avatar avatar--md" aria-hidden="true">LK</span>
+      <div><strong>Leila K.</strong><span>Driver · Tunis → Sousse</span></div>
+      {% include "partials/_seal.html" with fired=True %}
+    </div>
+    <div class="specimen">
+      <span class="avatar avatar--md" aria-hidden="true">SB</span>
+      <div><strong>Sami B.</strong><span>Passenger · verification pending</span></div>
+      {% include "partials/_seal.html" with fired=False %}
+    </div>
+    <p class="auth__note">Example members. The cobalt seal appears once our team has checked the ID and the selfie.</p>
+  </div>
+</aside>

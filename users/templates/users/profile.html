@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}My profile{% endblock %}
+
+{% block content %}
+<div class="split split--profile">
+  {% include "users/_identity.html" %}
+
+  <div class="stack">
+    <section class="sheet" aria-labelledby="details-title">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="details-title">Personal details</h2>
+        <a class="btn btn--primary" href="{% url 'users:profile_edit' %}"><svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg>Edit profile</a>
+      </div>
+      <dl class="dl dl--2">
+        <div class="dl__item"><dt>E-mail</dt><dd>{{ person.email }}</dd></div>
+        <div class="dl__item"><dt>Phone</dt><dd>{{ person.formatted_phone|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Date of birth</dt><dd>{% if person.date_of_birth %}{{ person.date_of_birth|date:"j F Y" }} · {{ person.age }} years{% else %}—{% endif %}</dd></div>
+        <div class="dl__item"><dt>City</dt><dd>{{ person.city|default:"—" }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="sheet" aria-labelledby="docs-title">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="docs-title">Identity documents</h2>
+        <span class="small muted">Visible only to you and CoRide administrators</span>
+      </div>
+      <dl class="dl dl--2">
+        <div class="dl__item"><dt>Document</dt><dd>{{ person.get_id_document_type_display|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Number</dt><dd>{{ person.masked_id_number|default:"—" }}</dd></div>
+      </dl>
+      <div class="docs mt-4">
+        {% include "users/_doc.html" with label="ID document" kind="id" file=person.id_document_image %}
+        {% include "users/_doc.html" with label="Selfie" kind="selfie" file=person.selfie %}
+      </div>
+    </section>
+
+    <section class="sheet" aria-labelledby="security-title">
+      <div class="sheet__head"><h2 class="sheet__title" id="security-title">Account</h2></div>
+      <div class="actions">
+        <a class="btn btn--secondary" href="{% url 'users:password_change' %}"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>Change password</a>
+        <div class="actions__danger">
+          <a class="btn btn--danger" href="{% url 'users:account_delete' %}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete my account</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

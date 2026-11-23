@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ person.get_full_name }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:manage_detail' person.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>{{ person.get_full_name }}</a>
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Delete this account?</h1>
+    <p class="page-head__lede">{{ person.get_full_name }} · {{ person.email }}</p>
+  </div>
+</header>
+<section class="danger-zone">
+  <h2>This cannot be undone</h2>
+  <p>Personal details, the profile photo, the ID photo and the selfie are erased. Past trips and reviews stay, shown as “Deleted user”.</p>
+  <form method="post" class="actions mt-6">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete account</button>
+    <a class="btn btn--secondary" href="{% url 'users:manage_detail' person.pk %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

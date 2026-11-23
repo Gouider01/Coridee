@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Users</h1>
+    <p class="page-head__lede">Check identities, suspend fake accounts and manage administrators.</p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'users:manage_new_admin' %}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>New administrator</a>
+</header>
+
+<section class="sheet sheet--flush">
+  <form class="toolbar" method="get" role="search">
+    <label class="search">
+      <span class="visually-hidden">Search users</span>
+      <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by name, e-mail or phone">
+    </label>
+    <span class="count">{% if q %}{{ people|length }} of {{ total }} users match “{{ q }}”{% else %}{{ total }} user{{ total|pluralize }}{% endif %}</span>
+  </form>
+
+  {% if people %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Type</th>
+            <th scope="col">Identity</th>
+            <th scope="col">Status</th>
+            <th scope="col">Joined</th>
+            <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for person in people %}
+            <tr>
+              <td>
+                <div class="table__person">
+                  {% include "partials/_avatar.html" with person=person size="md" %}
+                  <div><a href="{% url 'users:manage_detail' person.pk %}">{{ person.get_full_name }}</a><span>{{ person.email }}</span></div>
+                </div>
+              </td>
+              <td>{{ person.formatted_phone|default:"—" }}</td>
+              <td>{{ person.get_user_type_display }}</td>
+              <td>
+                {% if person.is_administrator %}
+                  <span class="muted">Staff</span>
+                {% elif person.identity_verified %}
+                  <span class="verified-inline">{% include "partials/_seal.html" with fired=True %}Verified</span>
+                {% else %}
+                  <span class="verified-inline verified-inline--pending">{% include "partials/_seal.html" with fired=False %}Pending</span>
+                {% endif %}
+              </td>
+              <td><span class="badge badge--{{ person.account_status|lower }}">{{ person.get_account_status_display }}</span></td>
+              <td>{{ person.date_joined|date:"j M Y" }}</td>
+              <td class="table__end"><a class="btn btn--ghost btn--sm" href="{% url 'users:manage_detail' person.pk %}">Open</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-users"/></svg>
+      <strong>No user matches “{{ q }}”</strong>
+      <p>Try another name, e-mail or phone number.</p>
+      <a class="btn btn--secondary" href="{% url 'users:manage' %}">Show all users</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

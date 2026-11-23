@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block main %}
+<div class="auth">
+  {% include "users/_auth_side.html" with claim="Welcome back on the road." sub="Log in to find a trip, manage your bookings and see who you travel with." %}
+
+  <div class="auth__main">
+    <div class="auth__panel auth__panel--sm">
+      {% include "partials/_messages.html" %}
+      <h1 class="auth__title">Log in</h1>
+      <p class="auth__lede">Use the e-mail address you signed up with.</p>
+
+      <form class="form mt-6" method="post" novalidate>
+        {% csrf_token %}
+        {% include "partials/_form_errors.html" %}
+        <div class="stack stack--sm">
+          {% include "partials/_field.html" with field=form.username %}
+          {% include "partials/_field.html" with field=form.password %}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="stack stack--sm">
+          <button type="submit" class="btn btn--primary btn--block">Log in</button>
+          <p class="auth__switch">New to CoRide? <a href="{% url 'users:signup' %}">Create an account</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
