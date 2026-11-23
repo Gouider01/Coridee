@@ -42,11 +42,11 @@ CoRide est une plateforme unique et sécurisée où :
 
 | Module | Ce qu'il permet | Responsable | Branche |
 |---|---|---|---|
-| **1. Gestion des utilisateurs** | Inscription, vérification de l'identité, profils, administration des comptes || `gestion-utilisateurs` |
-| **2. Gestion des véhicules** | Enregistrement des voitures et vérification de leurs papiers || `gestion-vehicules` |
-| **3. Gestion des trajets** | Publication des trajets et recherche par les passagers || `gestion-trajets` |
-| **4. Gestion des réservations** | Demande, acceptation et annulation des réservations, billet QR code || `gestion-reservations` |
-| **5. Communication et avis** | Discussion entre conducteur et passager, notes et commentaires || `communication-avis` |
+| **1. Gestion des utilisateurs** | Inscription, vérification de l'identité, profils, administration des comptes | Alaaeddine Guouider | `Gestion-Utilisateurs` · app `users` |
+| **2. Gestion des véhicules** | Enregistrement des voitures et vérification de leurs papiers | Abdallah Salhi | `Gestion-vehicules` · app `vehicles` |
+| **3. Gestion des trajets** | Publication des trajets et recherche par les passagers | Wasim Snoussi | `Gestion-Trajets` · app `trips` |
+| **4. Gestion des réservations** | Demande, acceptation et annulation des réservations, billet QR code | Selim Aschi | `Gestion-Reservations` · app `reservations` |
+| **5. Communication et avis** | Discussion entre conducteur et passager, notes et commentaires | Ahmed Ridha Lazhari | `Gestion-Communication` · app `communication` |
 
 ---
 
@@ -80,3 +80,66 @@ En remplissant les places vides des voitures, CoRide contribue à :
 - **réduire le coût** des déplacements ;
 - **diminuer le nombre de voitures** sur les routes et la pollution ;
 - **rendre le covoiturage plus sûr** grâce à la vérification des utilisateurs.
+
+---
+
+## Démarrage (développement)
+
+Prérequis : Python 3.10+ et Git.
+
+```bash
+git clone https://github.com/Gouider01/CoRide.git
+cd CoRide
+git checkout <votre-branche>          # ex. Gestion-Trajets
+
+python -m venv .venv
+# Windows : .venv\Scripts\activate     ·  Linux/macOS : source .venv/bin/activate
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py createsuperuser      # connexion par e-mail
+python manage.py runserver            # http://127.0.0.1:8000  ·  admin : /admin/
+```
+
+## Architecture
+
+```
+CoRide/
+├── config/                 # Projet Django : settings.py, urls.py, page d'accueil
+├── users/                  # Module 1 - Utilisateurs (modèle User = AUTH_USER_MODEL)
+├── vehicles/               # Module 2 - Véhicules
+├── trips/                  # Module 3 - Trajets
+├── reservations/           # Module 4 - Réservations
+├── communication/          # Module 5 - Communication et avis
+│   ├── models.py  forms.py  views.py  urls.py  admin.py  tests.py
+│   └── templates/<app>/    # templates du module, ex. trips/trip_list.html
+├── templates/              # Templates partagés
+│   ├── base.html           # Mise en page commune (Bootstrap 5)
+│   ├── home.html
+│   └── partials/           # _navbar, _messages, _footer, _form (affichage des erreurs)
+├── static/                 # css/main.css, js/main.js, img/, et static/<app>/ par module
+└── requirements.txt
+```
+
+Chaque app a déjà son préfixe d'URL (`/users/`, `/vehicles/`, `/trips/`, `/reservations/`, `/communication/`) et son `app_name` : ajoutez vos routes dans `<app>/urls.py`.
+
+### Règles communes
+
+- **Utilisateur** : pour lier un utilisateur, utilisez toujours `settings.AUTH_USER_MODEL`, jamais `User` directement.
+  ```python
+  from django.conf import settings
+  driver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trips")
+  ```
+  Rôles disponibles : `user.is_passenger`, `user.is_driver`, `user.is_administrator`.
+- **Modèle d'un autre module** : référencez-le par une chaîne, ex. `"vehicles.Vehicle"`, `"trips.Trip"`.
+- **Templates** : chaque page étend `base.html` (`{% extends "base.html" %}` + `{% block content %}`) ; formulaires avec `{% include "partials/_form.html" with form=form %}`.
+- **Fichiers partagés** (`config/`, `templates/base.html`, `templates/partials/`, `static/css/main.css`) : modification uniquement par pull request vers `main`.
+- **Ne jamais committer** `db.sqlite3`, `media/` ni `.venv/` (déjà dans `.gitignore`).
+
+## Workflow Git
+
+1. Travaillez uniquement sur votre branche et dans votre app.
+2. Récupérez régulièrement `main` : `git pull origin main`.
+3. Commitez vos migrations (`python manage.py makemigrations <app>`).
+4. Ouvrez une pull request vers `main` ; elle est relue avant fusion.
+

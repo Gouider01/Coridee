@@ -1,0 +1,15 @@
+{# Reusable form renderer with validation errors.                               #}
+{# Usage: {% include "partials/_form.html" with form=form submit_label="Enregistrer" %} #}
+{% if form.non_field_errors %}
+  <div class="alert alert-danger">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>
+{% endif %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
+{% for field in form.visible_fields %}
+  <div class="mb-3">
+    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+    {{ field }}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    {% for e in field.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+  </div>
+{% endfor %}
+<button type="submit" class="btn btn-coride">{{ submit_label|default:"Enregistrer" }}</button>

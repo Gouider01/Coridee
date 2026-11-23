@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<section class="text-center py-5">
+  <img src="{% static 'img/coride-icon.png' %}" alt="CoRide" width="96" height="96" class="mb-3">
+  <h1 class="fw-bold">CoRide</h1>
+  <p class="lead text-muted">Le covoiturage simple et sûr : partagez vos trajets et les frais.</p>
+</section>
+{% endblock %}
