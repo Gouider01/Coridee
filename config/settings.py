@@ -55,6 +55,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "config.context_processors.navigation",
             ],
         },
     },
@@ -85,7 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # --- Internationalisation -------------------------------------------------
-LANGUAGE_CODE = "fr"
+LANGUAGE_CODE = "en"
 TIME_ZONE = "Africa/Tunis"
 USE_I18N = True
 USE_TZ = True

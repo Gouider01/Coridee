@@ -1,10 +1,46 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Accueil{% endblock %}
-{% block content %}
-<section class="text-center py-5">
-  <img src="{% static 'img/coride-icon.png' %}" alt="CoRide" width="96" height="96" class="mb-3">
-  <h1 class="fw-bold">CoRide</h1>
-  <p class="lead text-muted">Le covoiturage simple et sûr : partagez vos trajets et les frais.</p>
+{% block title %}Carpooling you can trust{% endblock %}
+
+{% block main %}
+<section class="hero">
+  <div class="hero__inner">
+    <div>
+      <h1 class="hero__title">Share the road with people you can <em>trust</em>.</h1>
+      <p class="hero__sub">CoRide connects drivers who have empty seats with passengers going the same way between Tunisian cities. Every member uploads an ID and a selfie, and our team checks them.</p>
+      <div class="hero__cta">
+        {% if user.is_authenticated %}
+          {% if account_urls.profile %}<a class="btn btn--primary" href="{{ account_urls.profile }}">Go to my profile</a>{% endif %}
+        {% else %}
+          {% if account_urls.signup %}<a class="btn btn--primary" href="{{ account_urls.signup }}">Create your account</a>{% endif %}
+          {% if account_urls.login %}<a class="btn btn--secondary" href="{{ account_urls.login }}">I already have an account</a>{% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <ol class="firing" aria-label="How verification works">
+      <li class="firing__step">
+        <span class="firing__icon"><svg class="icon" aria-hidden="true"><use href="#i-id"/></svg></span>
+        <div><strong>You upload your ID and a selfie</strong><span>Takes a minute when you sign up. You can travel right away.</span></div>
+      </li>
+      <li class="firing__step">
+        {% include "partials/_seal.html" with fired=False size="lg" %}
+        <div><strong>Our team compares them</strong><span>Until then your profile shows “verification pending”.</span></div>
+      </li>
+      <li class="firing__step firing__step--done">
+        {% include "partials/_seal.html" with fired=True size="lg" %}
+        <div><strong>Your seal is fired</strong><span>The cobalt seal appears on your profile and everywhere people see you.</span></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="why-title">
+  <h2 class="band__title" id="why-title">Why travel with CoRide</h2>
+  <div class="points">
+    <div class="point"><h3>Verified people</h3><p>No anonymous accounts: an administrator checks every identity, and fake ones are suspended.</p></div>
+    <div class="point"><h3>Split the fuel cost</h3><p>Drivers share the seats they would drive empty; passengers pay a fair share instead of a full fare.</p></div>
+    <div class="point"><h3>Seats managed for you</h3><p>No more counting replies in a group chat: bookings, seats and tickets are handled in one place.</p></div>
+    <div class="point"><h3>Rate each other</h3><p>After each trip, passengers and drivers leave a review, so the community stays reliable.</p></div>
+  </div>
 </section>
 {% endblock %}

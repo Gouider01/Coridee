@@ -114,10 +114,11 @@ CoRide/
 │   ├── models.py  forms.py  views.py  urls.py  admin.py  tests.py
 │   └── templates/<app>/    # templates du module, ex. trips/trip_list.html
 ├── templates/              # Templates partagés
-│   ├── base.html           # Mise en page commune (Bootstrap 5)
-│   ├── home.html
-│   └── partials/           # _navbar, _messages, _footer, _form (affichage des erreurs)
-├── static/                 # css/main.css, js/main.js, img/, et static/<app>/ par module
+│   ├── base.html           # Mise en page commune (barre du haut, messages, pied de page)
+│   ├── home.html  403.html  404.html
+│   └── partials/           # _navbar, _messages, _footer, _field, _form, _form_errors, _seal, _avatar, _icons
+├── static/                 # css/coride.css (design system), js/coride.js, fonts/, img/, et static/<app>/
+├── PRODUCT.md              # Contexte produit (utilisateurs, objectifs, contraintes)
 └── requirements.txt
 ```
 
@@ -132,8 +133,31 @@ Chaque app a déjà son préfixe d'URL (`/users/`, `/vehicles/`, `/trips/`, `/re
   ```
   Rôles disponibles : `user.is_passenger`, `user.is_driver`, `user.is_administrator`.
 - **Modèle d'un autre module** : référencez-le par une chaîne, ex. `"vehicles.Vehicle"`, `"trips.Trip"`.
-- **Templates** : chaque page étend `base.html` (`{% extends "base.html" %}` + `{% block content %}`) ; formulaires avec `{% include "partials/_form.html" with form=form %}`.
-- **Fichiers partagés** (`config/`, `templates/base.html`, `templates/partials/`, `static/css/main.css`) : modification uniquement par pull request vers `main`.
+- **Langue** : toute l'interface est en **anglais**.
+- **Templates** : chaque page étend `base.html` (`{% extends "base.html" %}` + `{% block title %}` + `{% block content %}`).
+- **Navigation** : pour que votre module apparaisse dans la barre du haut, nommez sa page d'accueil `index` (ex. `path("", views.trip_list, name="index")` dans `trips/urls.py`). Le lien s'affiche automatiquement.
+- **Fichiers partagés** (`config/`, `templates/base.html`, `templates/partials/`, `static/css/coride.css`, `static/js/coride.js`) : modification uniquement par pull request vers `main`.
+
+## Design system « Nabeul Glaze »
+
+Une seule apparence pour toute l'application (pas de Bootstrap). Idée : **la confiance est un objet cuit** — une personne vérifiée porte un sceau cobalt à huit pointes ; le reste est une interface calme et précise.
+
+| Élément | Utilisation |
+|---|---|
+| `<div class="page-head">` + `<h1 class="page-head__title">` | En-tête de chaque page |
+| `<section class="sheet">` | Bloc de contenu blanc (pas de cartes imbriquées) |
+| `btn btn--primary` | **Une seule** action principale (rouge) par écran |
+| `btn btn--secondary` / `btn--ghost` / `btn--trust` | Actions secondaires ; `btn--trust` (cobalt) pour vérifier/valider |
+| `btn btn--danger` dans `<div class="actions__danger">` | Supprimer, suspendre : toujours en contour et à l'écart |
+| `{% include "partials/_field.html" with field=form.x %}` | Un champ avec libellé, aide et **erreurs de saisie** |
+| `{% include "partials/_form.html" with form=form submit_label="Save" %}` | Formulaire simple complet |
+| `<table class="table">` dans `<div class="sheet sheet--flush"><div class="table-wrap">` | Listes (admin, trajets, réservations…) |
+| `badge badge--active` / `--pending` / `--suspended` / `--neutral` | Statuts |
+| `{% include "partials/_seal.html" with fired=person.identity_verified %}` | Sceau de vérification à côté d'une personne |
+| `{% include "partials/_avatar.html" with person=p size="md" %}` | Photo de profil ou initiales |
+| `<svg class="icon"><use href="#i-search"/></svg>` | Icônes (liste dans `partials/_icons.html`) |
+
+Couleurs : rouge CoRide `#c8102e` (action principale), cobalt `#1d3f8f` (confiance, liens), encre `#1b1e24`. Utilisez les variables CSS de `coride.css` (`var(--cobalt-700)`, `var(--s-4)`…) plutôt que des valeurs en dur.
 - **Ne jamais committer** `db.sqlite3`, `media/` ni `.venv/` (déjà dans `.gitignore`).
 
 ## Workflow Git

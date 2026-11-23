@@ -1,15 +1,12 @@
-{# Reusable form renderer with validation errors.                               #}
-{# Usage: {% include "partials/_form.html" with form=form submit_label="Enregistrer" %} #}
-{% if form.non_field_errors %}
-  <div class="alert alert-danger">{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div>
-{% endif %}
+{# Quick full-form renderer for simple forms.                                        #}
+{# Usage: {% include "partials/_form.html" with form=form submit_label="Save" %}       #}
+{# For custom layouts, use _form_errors.html + _field.html per field instead.         #}
+{% include "partials/_form_errors.html" %}
 {% for field in form.hidden_fields %}{{ field }}{% endfor %}
-{% for field in form.visible_fields %}
-  <div class="mb-3">
-    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-    {{ field }}
-    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-    {% for e in field.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
-  </div>
-{% endfor %}
-<button type="submit" class="btn btn-coride">{{ submit_label|default:"Enregistrer" }}</button>
+<div class="stack stack--sm">
+  {% for field in form.visible_fields %}{% include "partials/_field.html" with field=field %}{% endfor %}
+</div>
+<div class="actions mt-6">
+  <button type="submit" class="btn btn--primary">{{ submit_label|default:"Save" }}</button>
+  {% if cancel_url %}<a class="btn btn--secondary" href="{{ cancel_url }}">Cancel</a>{% endif %}
+</div>

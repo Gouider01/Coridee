@@ -17,3 +17,11 @@ staticfiles/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Design tooling (local only)
+.impeccable/mocks/
+.impeccable/review/
+.impeccable/build/
+.playwright-mcp/
+.superpowers/
+.impeccable/questions/

@@ -1,8 +1,13 @@
 {% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-    </div>
-  {% endfor %}
+  <div class="messages" aria-live="polite">
+    {% for message in messages %}
+      {% with level=message.tags|default:"info" %}
+      <div class="alert alert--{% if 'error' in level %}error{% elif 'success' in level %}success{% elif 'warning' in level %}warning{% else %}info{% endif %}" role="status" data-alert>
+        <svg class="icon" aria-hidden="true"><use href="#i-{% if 'error' in level or 'warning' in level %}alert{% elif 'success' in level %}check{% else %}info{% endif %}"/></svg>
+        <p>{{ message }}</p>
+        <button type="button" class="alert__close" aria-label="Dismiss" data-alert-close><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
 {% endif %}

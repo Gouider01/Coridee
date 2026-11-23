@@ -1,0 +1,13 @@
+{# The CoRide verification seal: an eight-point tile.                                #}
+{# Usage: {% include "partials/_seal.html" with fired=person.identity_verified size="lg" %} #}
+{# size: "" (24px, inline) | "lg" (56px) | "xl" (88px)                                    #}
+<span class="seal{% if fired %} seal--fired{% endif %}{% if size %} seal--{{ size }}{% endif %}" role="img"
+      aria-label="{% if fired %}Verified identity{% else %}Identity not verified yet{% endif %}">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <rect class="seal__tile" x="9" y="9" width="30" height="30" rx="2.5"/>
+    <rect class="seal__tile" x="9" y="9" width="30" height="30" rx="2.5" transform="rotate(45 24 24)"/>
+    <rect class="seal__inner" x="13.5" y="13.5" width="21" height="21" rx="1.5"/>
+    <rect class="seal__inner" x="13.5" y="13.5" width="21" height="21" rx="1.5" transform="rotate(45 24 24)"/>
+    <path class="seal__mark" d="m17.5 24.5 4.5 4.5 9-10"/>
+  </svg>
+</span>

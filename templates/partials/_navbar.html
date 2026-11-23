@@ -1,29 +1,57 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-coride-ink">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+<header class="bar">
+  <div class="bar__inner">
+    <a class="brand" href="{% url 'home' %}">
       <img src="{% static 'img/coride-icon.png' %}" alt="" width="32" height="32">
-      <span class="fw-bold">CoRide</span>
+      <span>CoRide</span>
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-            aria-controls="mainNav" aria-expanded="false" aria-label="Menu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav me-auto">
-        {# Each owner replaces their link with {% url '<app>:<name>' %} once the route exists. #}
-        <li class="nav-item"><a class="nav-link" href="/trips/">Trajets</a></li>           {# Module 3 #}
-        <li class="nav-item"><a class="nav-link" href="/reservations/">Réservations</a></li> {# Module 4 #}
-        <li class="nav-item"><a class="nav-link" href="/vehicles/">Véhicules</a></li>       {# Module 2 #}
-        <li class="nav-item"><a class="nav-link" href="/communication/">Messages</a></li>   {# Module 5 #}
-      </ul>
-      <ul class="navbar-nav">
-        {# Module 1: login / sign-up / profile links #}
-        {% if user.is_authenticated %}
-          <li class="nav-item"><span class="nav-link">{{ user }}</span></li>
-          {% if user.is_staff %}<li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>{% endif %}
+
+    {% if user.is_authenticated %}
+      <nav class="nav" id="main-nav" aria-label="Main">
+        {% for item in module_nav %}
+          <a class="nav__link" href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+        {% endfor %}
+        {% if user.is_administrator and account_urls.manage %}
+          <a class="nav__link" href="{{ account_urls.manage }}"{% if account_urls.manage in request.path %} aria-current="page"{% endif %}>Users</a>
         {% endif %}
-      </ul>
+      </nav>
+    {% endif %}
+
+    <div class="bar__end">
+      {% if user.is_authenticated %}
+        {% if module_nav or user.is_administrator %}
+          <button type="button" class="btn btn--ghost nav-toggle" aria-controls="main-nav" aria-expanded="false" data-nav-toggle>
+            <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg><span class="visually-hidden">Menu</span>
+          </button>
+        {% endif %}
+        <details class="menu" data-menu>
+          <summary class="menu__trigger">
+            {% include "partials/_avatar.html" with person=user size="sm" %}
+            <span class="menu__name">{{ user.first_name|default:user.email }}</span>
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron-down"/></svg>
+          </summary>
+          <div class="menu__panel">
+            <div class="menu__head">
+              <strong>{{ user.get_full_name|default:user.email }}</strong>
+              <span>{{ user.get_user_type_display }}</span>
+            </div>
+            {% if account_urls.profile %}
+              <a class="menu__item" href="{{ account_urls.profile }}"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>My profile</a>
+            {% endif %}
+            {% if user.is_staff %}
+              <a class="menu__item" href="{% url 'admin:index' %}"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>Django admin</a>
+            {% endif %}
+            {% if account_urls.logout %}
+              <form method="post" action="{{ account_urls.logout }}">{% csrf_token %}
+                <button type="submit" class="menu__item"><svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg>Log out</button>
+              </form>
+            {% endif %}
+          </div>
+        </details>
+      {% else %}
+        {% if account_urls.login %}<a class="btn btn--ghost" href="{{ account_urls.login }}">Log in</a>{% endif %}
+        {% if account_urls.signup %}<a class="btn btn--primary" href="{{ account_urls.signup }}">Sign up</a>{% endif %}
+      {% endif %}
     </div>
   </div>
-</nav>
+</header>

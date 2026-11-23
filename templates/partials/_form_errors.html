@@ -1,0 +1,10 @@
+{# Errors that belong to the whole form (not to one field). #}
+{% if form.non_field_errors %}
+  <div class="alert alert--error" role="alert">
+    <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+    <div>{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+  </div>
+{% endif %}
+{% for field in form.hidden_fields %}{% for error in field.errors %}
+  <div class="alert alert--error" role="alert"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg><p>{{ error }}</p></div>
+{% endfor %}{% endfor %}

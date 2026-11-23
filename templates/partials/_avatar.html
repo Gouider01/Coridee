@@ -1,0 +1,8 @@
+{# Profile photo, or initials when there is none.                       #}
+{# Usage: {% include "partials/_avatar.html" with person=user size="md" %} #}
+{# size: "sm" (32px) | "md" (40px) | "" (96px)                          #}
+{% if person.profile_photo %}
+  <img class="avatar{% if size %} avatar--{{ size }}{% endif %}" src="{{ person.profile_photo.url }}" alt="">
+{% else %}
+  <span class="avatar{% if size %} avatar--{{ size }}{% endif %}" aria-hidden="true">{{ person.first_name|slice:":1"|upper }}{{ person.last_name|slice:":1"|upper }}</span>
+{% endif %}
