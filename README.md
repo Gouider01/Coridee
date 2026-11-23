@@ -88,8 +88,8 @@ En remplissant les places vides des voitures, CoRide contribue à :
 Prérequis : Python 3.10+ et Git.
 
 ```bash
-git clone https://github.com/Gouider01/CoRide.git
-cd CoRide
+git clone https://github.com/Gouider01/Coridee.git
+cd Coridee
 git checkout <votre-branche>          # ex. Gestion-Trajets
 
 python -m venv .venv
