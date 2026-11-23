@@ -25,3 +25,9 @@ Thumbs.db
 .playwright-mcp/
 .superpowers/
 .impeccable/questions/
+
+# AI design / planning tooling (keep local, never commit)
+.impeccable/
+docs/superpowers/
+PRODUCT.md
+DESIGN.md

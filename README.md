@@ -118,7 +118,6 @@ CoRide/
 │   ├── home.html  403.html  404.html
 │   └── partials/           # _navbar, _messages, _footer, _field, _form, _form_errors, _seal, _avatar, _icons
 ├── static/                 # css/coride.css (design system), js/coride.js, fonts/, img/, et static/<app>/
-├── PRODUCT.md              # Contexte produit (utilisateurs, objectifs, contraintes)
 └── requirements.txt
 ```
 
