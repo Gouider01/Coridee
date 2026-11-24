@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Delete my account{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:profile' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>My profile</a>
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Delete my account</h1>
+    <p class="page-head__lede">This cannot be undone.</p>
+  </div>
+</header>
+
+<section class="danger-zone">
+  <h2>What happens when you delete your account</h2>
+  <ul class="small muted mt-2" style="padding-inline-start:1.2em;line-height:1.8">
+    <li>Your name, e-mail, phone, date of birth and city are erased.</li>
+    <li>Your profile photo, ID photo and selfie are deleted from our servers.</li>
+    <li>You are logged out and can no longer log in with this account.</li>
+    <li>Past trips and reviews stay, shown as “Deleted user”, so other members keep their history.</li>
+  </ul>
+
+  <form class="form mt-6" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" %}
+    {% include "partials/_field.html" with field=form.password %}
+    <div class="actions">
+      <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete my account permanently</button>
+      <a class="btn btn--secondary" href="{% url 'users:profile' %}">Keep my account</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

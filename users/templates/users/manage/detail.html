@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ person.get_full_name }}{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All users</a>
+
+<div class="split split--profile">
+  <div class="stack">
+    {% include "users/_identity.html" %}
+    {% if person.is_suspended %}
+      <div class="alert alert--error"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>
+        <div><p><strong>Suspended.</strong> {{ person.suspension_reason }}</p></div></div>
+    {% endif %}
+  </div>
+
+  <div class="stack">
+    <section class="sheet" aria-labelledby="check-title">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="check-title">Identity check</h2>
+        {% if person.identity_verified %}
+          <span class="small muted">Verified by {{ person.verified_by.get_full_name|default:"an administrator" }} on {{ person.verified_at|date:"j M Y, H:i" }}</span>
+        {% endif %}
+      </div>
+      <dl class="dl dl--2">
+        <div class="dl__item"><dt>Document</dt><dd>{{ person.get_id_document_type_display|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Number</dt><dd>{{ person.id_document_number|default:"—" }}</dd></div>
+      </dl>
+      <div class="docs mt-4">
+        {% include "users/_doc.html" with label="ID document" kind="id" file=person.id_document_image %}
+        {% include "users/_doc.html" with label="Selfie" kind="selfie" file=person.selfie %}
+      </div>
+      <div class="actions mt-6">
+        {% if person.identity_verified %}
+          <form method="post" action="{% url 'users:manage_unverify' person.pk %}">{% csrf_token %}
+            <button type="submit" class="btn btn--secondary"><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>Remove verification</button>
+          </form>
+        {% else %}
+          <form method="post" action="{% url 'users:manage_verify' person.pk %}">{% csrf_token %}
+            <button type="submit" class="btn btn--trust"{% if not person.id_document_image or not person.selfie %} disabled{% endif %}>
+              <svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>The photos match: verify identity</button>
+          </form>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="sheet" aria-labelledby="details-title">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="details-title">Account details</h2>
+        <a class="btn btn--secondary btn--sm" href="{% url 'users:manage_edit' person.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-edit"/></svg>Edit</a>
+      </div>
+      <dl class="dl dl--2">
+        <div class="dl__item"><dt>E-mail</dt><dd>{{ person.email }}</dd></div>
+        <div class="dl__item"><dt>Phone</dt><dd>{{ person.formatted_phone|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Date of birth</dt><dd>{% if person.date_of_birth %}{{ person.date_of_birth|date:"j F Y" }} · {{ person.age }} years{% else %}—{% endif %}</dd></div>
+        <div class="dl__item"><dt>City</dt><dd>{{ person.city|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Account type</dt><dd>{{ person.get_user_type_display }}</dd></div>
+        <div class="dl__item"><dt>Status</dt><dd><span class="badge badge--{{ person.account_status|lower }}">{{ person.get_account_status_display }}</span></dd></div>
+        <div class="dl__item"><dt>Joined</dt><dd>{{ person.date_joined|date:"j F Y, H:i" }}</dd></div>
+        <div class="dl__item"><dt>Last login</dt><dd>{{ person.last_login|date:"j F Y, H:i"|default:"Never" }}</dd></div>
+      </dl>
+    </section>
+
+    {% if person.pk != user.pk %}
+      <section class="sheet" aria-labelledby="moderation-title">
+        <div class="sheet__head"><h2 class="sheet__title" id="moderation-title">Moderation</h2></div>
+        <div class="actions">
+          {% if person.is_suspended %}
+            <form method="post" action="{% url 'users:manage_reactivate' person.pk %}">{% csrf_token %}
+              <button type="submit" class="btn btn--secondary"><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>Reactivate account</button>
+            </form>
+          {% else %}
+            <a class="btn btn--danger" href="{% url 'users:manage_suspend' person.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Suspend</a>
+          {% endif %}
+          <div class="actions__danger">
+            <a class="btn btn--danger" href="{% url 'users:manage_delete' person.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete account</a>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

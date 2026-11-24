@@ -1,0 +1,13 @@
+{# A private document preview (ID photo or selfie), served by users:identity_document. #}
+<figure class="doc">
+  <figcaption class="doc__label">{{ label }}</figcaption>
+  <div class="doc__frame">
+    {% if file %}
+      <a href="{% url 'users:identity_document' person.pk kind %}" target="_blank" rel="noopener" style="display:contents">
+        <img src="{% url 'users:identity_document' person.pk kind %}" alt="{{ label }} of {{ person.get_full_name }}" loading="lazy">
+      </a>
+    {% else %}
+      <span>Not uploaded yet</span>
+    {% endif %}
+  </div>
+</figure>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Suspend {{ person.get_full_name }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:manage_detail' person.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>{{ person.get_full_name }}</a>
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Suspend {{ person.get_full_name }}</h1>
+    <p class="page-head__lede">They will be logged out and unable to log in until you reactivate the account.</p>
+  </div>
+</header>
+<section class="danger-zone">
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" %}
+    {% include "partials/_field.html" with field=form.reason %}
+    <div class="actions">
+      <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Suspend account</button>
+      <a class="btn btn--secondary" href="{% url 'users:manage_detail' person.pk %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

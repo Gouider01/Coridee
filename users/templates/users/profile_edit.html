@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Edit profile{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+
+{% block content %}
+<a class="crumb" href="{% url 'users:profile' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>My profile</a>
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Edit profile</h1>
+    <p class="page-head__lede">Keep your details up to date so drivers and passengers know who they travel with.</p>
+  </div>
+</header>
+
+<form class="form" method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {% include "partials/_form_errors.html" %}
+
+  <section class="sheet">
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">Personal details</legend>
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.first_name %}
+        {% include "partials/_field.html" with field=form.last_name %}
+        {% include "partials/_field.html" with field=form.email %}
+        {% include "partials/_field.html" with field=form.phone_number %}
+        {% include "partials/_field.html" with field=form.date_of_birth %}
+        {% include "partials/_field.html" with field=form.city %}
+      </div>
+      {% include "partials/_field.html" with field=form.profile_photo drop=True icon="user" %}
+    </fieldset>
+  </section>
+
+  <section class="sheet">
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">Identity documents</legend>
+      {% if user.identity_verified %}
+        <div class="alert alert--warning"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+          <p>Your identity is verified. Changing your document type, number, ID photo or selfie removes the seal until our team checks again.</p></div>
+      {% endif %}
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.id_document_type %}
+        {% include "partials/_field.html" with field=form.id_document_number %}
+        {% include "partials/_field.html" with field=form.id_document_image drop=True icon="id" %}
+        {% include "partials/_field.html" with field=form.selfie drop=True icon="camera" %}
+      </div>
+    </fieldset>
+  </section>
+
+  <div class="actions">
+    <button type="submit" class="btn btn--primary">Save changes</button>
+    <a class="btn btn--secondary" href="{% url 'users:profile' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

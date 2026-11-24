@@ -75,7 +75,8 @@ DATABASES = {
 
 # --- Authentication -------------------------------------------------------
 AUTH_USER_MODEL = "users.User"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "users:profile"
 LOGOUT_REDIRECT_URL = "home"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -98,6 +99,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Identity documents (ID photos, selfies) are stored here, outside MEDIA_ROOT,
+# and served only through a permission-checked view. Never commit this folder.
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private_media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

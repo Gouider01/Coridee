@@ -1,0 +1,27 @@
+{# Identity sheet: photo, name, role, verification seal. Used on "My profile" and admin detail. #}
+<section class="sheet identity" aria-label="Identity">
+  <div class="identity__top">
+    <span class="avatar-ring{% if person.identity_verified %} avatar-ring--verified{% endif %}">{% include "partials/_avatar.html" with person=person %}</span>
+    <div>
+      <h1 class="identity__name">{{ person.get_full_name }}</h1>
+      <p class="identity__role"><span class="pill">{{ person.get_user_type_display }}</span>{% if person.city %}{{ person.city }}{% endif %}</p>
+    </div>
+  </div>
+
+  {% if person.identity_verified %}
+    <div class="seal-card seal-card--fired">
+      {% include "partials/_seal.html" with fired=True size="xl" firing=fire_seal %}
+      <div><strong>Verified identity</strong><span>ID and selfie checked on {{ person.verified_at|date:"j F Y" }}.</span></div>
+    </div>
+  {% else %}
+    <div class="seal-card">
+      {% include "partials/_seal.html" with fired=False size="xl" %}
+      <div><strong>Verification pending</strong><span>{% if person.id_document_image and person.selfie %}Our team will compare the ID photo and the selfie.{% else %}An ID photo and a selfie are needed before verification.{% endif %}</span></div>
+    </div>
+  {% endif %}
+
+  <div class="identity__meta">
+    <span>Member since {{ person.date_joined|date:"F Y" }}</span>
+    {% if person.is_suspended %}<span><span class="badge badge--suspended">Suspended</span></span>{% endif %}
+  </div>
+</section>
