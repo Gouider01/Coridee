@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.http import require_POST
 
 from .forms import (
@@ -82,7 +82,15 @@ class LogoutView(auth_views.LogoutView):
 # --------------------------------------------------------------------------- #
 @login_required
 def profile(request):
-    return render(request, "users/profile.html", {"person": request.user})
+    user = request.user
+    fire_seal = False
+    if user.identity_verified and user.verified_at:
+        # Play the firing animation once per verification.
+        stamp = user.verified_at.isoformat()
+        if request.session.get("seal_seen") != stamp:
+            request.session["seal_seen"] = stamp
+            fire_seal = True
+    return render(request, "users/profile.html", {"person": user, "fire_seal": fire_seal})
 
 
 @login_required
@@ -157,16 +165,21 @@ def manage_list(request):
             Q(first_name__icontains=q) | Q(last_name__icontains=q)
             | Q(email__icontains=q) | Q(phone_number__icontains=q.replace(" ", ""))
         )
+    members = User.objects.filter(deleted_at__isnull=True)
     return render(request, "users/manage/list.html", {
         "people": people, "q": q, "search": search,
-        "total": User.objects.filter(deleted_at__isnull=True).count(),
+        "total": members.count(),
+        "verified_count": members.filter(identity_verified=True).count(),
+        "pending_count": members.filter(identity_verified=False).exclude(user_type=User.UserType.ADMINISTRATOR).count(),
+        "suspended_count": members.filter(account_status=User.AccountStatus.SUSPENDED).count(),
     })
 
 
 @admin_required
 def manage_detail(request, pk):
     person = get_object_or_404(User, pk=pk, deleted_at__isnull=True)
-    return render(request, "users/manage/detail.html", {"person": person})
+    fire_seal = request.GET.get("fired") == "1" and person.identity_verified
+    return render(request, "users/manage/detail.html", {"person": person, "fire_seal": fire_seal})
 
 
 @admin_required
@@ -189,6 +202,7 @@ def manage_verify(request, pk):
     else:
         person.verify_identity(request.user)
         messages.success(request, f"{person.get_full_name()}'s identity is now verified.")
+        return redirect(f"{reverse('users:manage_detail', args=[person.pk])}?fired=1")
     return redirect("users:manage_detail", pk=person.pk)
 
 

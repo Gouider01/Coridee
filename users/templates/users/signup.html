@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Create your account{% endblock %}
 {% block footer %}{% endblock %}
+{% block body_class %}no-band{% endblock %}
 
 {% block main %}
 <div class="auth">
@@ -14,9 +15,13 @@
 
       <form class="form mt-6" method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
+        <div class="stepper" data-stepper aria-hidden="true">
+          <div data-step="#step-about"><i></i><span>1 · About you</span></div>
+          <div data-step="#step-identity"><i></i><span>2 · Your identity</span></div>
+        </div>
         {% include "partials/_form_errors.html" %}
 
-        <fieldset class="fieldset">
+        <fieldset class="fieldset" id="step-about">
           <legend class="fieldset__legend">About you</legend>
           <div class="form-grid form-grid--2">
             {% include "partials/_field.html" with field=form.first_name %}
@@ -33,9 +38,10 @@
           </div>
         </fieldset>
 
-        <fieldset class="fieldset">
+        <fieldset class="fieldset" id="step-identity">
           <legend class="fieldset__legend">Your identity</legend>
           <p class="fieldset__hint">Used only to verify that you are you. Only you and CoRide administrators can see these photos.</p>
+          <p class="seal-note">{% include "partials/_seal.html" with fired=False %}Your seal stays unfired until our team has checked these photos.</p>
           <div class="form-grid form-grid--2">
             {% include "partials/_field.html" with field=form.id_document_type %}
             {% include "partials/_field.html" with field=form.id_document_number %}
