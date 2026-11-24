@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.plate_number }}){% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{{ vehicle.brand }} {{ vehicle.model }}</h1>
+    <p class="page-head__lede">
+      Plate: <strong>{{ vehicle.plate_number }}</strong> · {{ vehicle.color }} · Year {{ vehicle.year }}
+    </p>
+  </div>
+  <div class="actions">
+    <a class="btn btn--secondary" href="{% url 'vehicles:edit' vehicle.pk %}">
+      <svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg>Edit vehicle
+    </a>
+    <a class="btn btn--ghost" href="{% url 'vehicles:index' %}">
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>My vehicles
+    </a>
+  </div>
+</header>
+
+{% if vehicle.status == 'REFUSED' %}
+  <div class="banner banner--danger" style="margin-bottom: var(--s-5); background: var(--red-50); border: 1.5px solid var(--red-200); border-radius: var(--r-md); padding: var(--s-4);">
+    <strong style="color: var(--red-700); display: block; margin-bottom: var(--s-1);">Vehicle review decision: Refused</strong>
+    <p style="margin: 0; color: var(--text);">
+      <strong>Reason:</strong> {{ vehicle.rejection_reason|default:"The submitted documents did not meet verification criteria." }}
+    </p>
+    <div style="margin-top: var(--s-3);">
+      <a class="btn btn--danger btn--sm" href="{% url 'vehicles:edit' vehicle.pk %}">
+        Update vehicle & documents to re-submit
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+<div class="sheet" style="margin-bottom: var(--s-6);">
+  <div class="sheet__head">
+    <h2 class="sheet__title">Status & overview</h2>
+    <div>
+      {% if vehicle.status == 'ACCEPTED' %}
+        <span class="badge badge--active">Accepted & verified</span>
+      {% elif vehicle.status == 'PENDING' %}
+        <span class="badge badge--pending">Pending validation</span>
+      {% elif vehicle.status == 'REFUSED' %}
+        <span class="badge badge--suspended">Refused</span>
+      {% else %}
+        <span class="badge badge--neutral">{{ vehicle.get_status_display }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <dl class="dl dl--2">
+    <div class="dl__item">
+      <dt class="muted">License plate</dt>
+      <dd>
+        <code style="background:var(--cobalt-50);padding:4px 8px;border-radius:6px;font-weight:700;color:var(--cobalt-950);">
+          {{ vehicle.plate_number }}
+        </code>
+      </dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Brand / Make</dt>
+      <dd><strong>{{ vehicle.brand }}</strong></dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Model</dt>
+      <dd><strong>{{ vehicle.model }}</strong></dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Color</dt>
+      <dd>{{ vehicle.color }}</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Year of manufacture</dt>
+      <dd>{{ vehicle.year }}</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Passenger seats</dt>
+      <dd><strong>{{ vehicle.seats }}</strong> passenger seats</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Submitted on</dt>
+      <dd>{{ vehicle.created_at|date:"j M Y, H:i" }}</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Last updated</dt>
+      <dd>{{ vehicle.updated_at|date:"j M Y, H:i" }}</dd>
+    </div>
+  </dl>
+</div>
+
+<div class="sheet" style="margin-bottom: var(--s-6);">
+  <div class="sheet__head">
+    <h2 class="sheet__title">Vehicle documents</h2>
+    <span class="muted">{{ documents|length }} uploaded</span>
+  </div>
+
+  {% if documents %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Document</th>
+            <th scope="col">Number / Ref</th>
+            <th scope="col">Expiry date</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="table__end"><span class="visually-hidden">Action</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+            <tr>
+              <td>
+                <strong>{{ doc.get_document_type_display }}</strong>
+              </td>
+              <td class="nowrap">{{ doc.number|default:"—" }}</td>
+              <td class="nowrap">
+                {% if doc.expiry_date %}
+                  {{ doc.expiry_date|date:"j M Y" }}
+                  {% if doc.is_expired %}
+                    <span class="badge badge--suspended">Expired</span>
+                  {% elif doc.is_expiring_soon %}
+                    <span class="badge badge--pending">Expiring soon</span>
+                  {% endif %}
+                {% else %}
+                  <span class="muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if doc.status == 'VALID' %}
+                  <span class="badge badge--active">Valid</span>
+                {% elif doc.status == 'PENDING' %}
+                  <span class="badge badge--pending">Pending</span>
+                {% elif doc.status == 'EXPIRED' %}
+                  <span class="badge badge--neutral">Expired</span>
+                {% elif doc.status == 'REJECTED' %}
+                  <span class="badge badge--suspended">Rejected</span>
+                {% endif %}
+              </td>
+              <td class="table__end">
+                <a class="btn btn--secondary btn--sm" href="{% url 'vehicles:document_file' doc.pk %}" target="_blank" rel="noopener">
+                  <svg class="icon icon--sm" aria-hidden="true"><use href="#i-id"/></svg>View file
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No documents uploaded for this vehicle.</p>
+  {% endif %}
+</div>
+
+<div class="actions" style="margin-top: var(--s-6);">
+  <div class="actions__danger">
+    <a class="btn btn--danger" href="{% url 'vehicles:delete' vehicle.pk %}">
+      <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete this vehicle
+    </a>
+  </div>
+</div>
+{% endblock %}

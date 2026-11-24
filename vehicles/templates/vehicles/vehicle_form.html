@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit {{ vehicle.plate_number }}{% else %}Register a vehicle{% endif %}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{% if is_edit %}Edit vehicle{% else %}Register a vehicle{% endif %}</h1>
+    <p class="page-head__lede">
+      {% if is_edit %}
+        Update your car details or upload new versions of your documents.
+      {% else %}
+        Enter your vehicle details and upload your 3 mandatory documents for verification.
+      {% endif %}
+    </p>
+  </div>
+  <a class="btn btn--secondary" href="{% if is_edit %}{% url 'vehicles:detail' vehicle.pk %}{% else %}{% url 'vehicles:index' %}{% endif %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back
+  </a>
+</header>
+
+<section class="sheet">
+  <form class="form" method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" with form=form %}
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">1. Vehicle information</legend>
+      <p class="fieldset__hint">Specifications of the car you will use to offer rides.</p>
+
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.brand %}
+        {% include "partials/_field.html" with field=form.model %}
+        {% include "partials/_field.html" with field=form.color %}
+        {% include "partials/_field.html" with field=form.plate_number %}
+        {% include "partials/_field.html" with field=form.year %}
+        {% include "partials/_field.html" with field=form.seats %}
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">2. Driving license</legend>
+      <p class="fieldset__hint">Your valid driver's permit.</p>
+
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.license_number %}
+        {% include "partials/_field.html" with field=form.license_expiry_date %}
+      </div>
+      <div>
+        {% include "partials/_field.html" with field=form.license_file %}
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">3. Registration document (Carte grise)</legend>
+      <p class="fieldset__hint">Official vehicle registration card.</p>
+
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.registration_number %}
+        {% include "partials/_field.html" with field=form.registration_expiry_date %}
+      </div>
+      <div>
+        {% include "partials/_field.html" with field=form.registration_file %}
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">4. Insurance policy</legend>
+      <p class="fieldset__hint">Valid automobile insurance certificate.</p>
+
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.insurance_number %}
+        {% include "partials/_field.html" with field=form.insurance_expiry_date %}
+      </div>
+      <div>
+        {% include "partials/_field.html" with field=form.insurance_file %}
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn--primary" type="submit">
+        <svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>
+        {% if is_edit %}Save changes{% else %}Submit vehicle for review{% endif %}
+      </button>
+      <a class="btn btn--ghost" href="{% if is_edit %}{% url 'vehicles:detail' vehicle.pk %}{% else %}{% url 'vehicles:index' %}{% endif %}">
+        Cancel
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}

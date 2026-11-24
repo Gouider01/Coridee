@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Inspect {{ vehicle.plate_number }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Inspect vehicle</h1>
+    <p class="page-head__lede">
+      Review documentation for <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong> (<code>{{ vehicle.plate_number }}</code>).
+    </p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'vehicles:manage' %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back to queue
+  </a>
+</header>
+
+{% if vehicle.status == 'REFUSED' %}
+  <div class="banner banner--danger" style="margin-bottom: var(--s-5); background: var(--red-50); border: 1.5px solid var(--red-200); border-radius: var(--r-md); padding: var(--s-4);">
+    <strong style="color: var(--red-700); display: block; margin-bottom: var(--s-1);">This vehicle was refused</strong>
+    <p style="margin: 0; color: var(--text);">
+      <strong>Reason recorded:</strong> {{ vehicle.rejection_reason }}
+    </p>
+  </div>
+{% endif %}
+
+<div class="sheet" style="margin-bottom: var(--s-6);">
+  <div class="sheet__head">
+    <h2 class="sheet__title">Owner information</h2>
+    <div>
+      {% if vehicle.owner.identity_verified %}
+        <span class="badge badge--active">Identity verified</span>
+      {% else %}
+        <span class="badge badge--pending">Identity unverified</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:var(--s-4);margin-bottom:var(--s-4);">
+    {% include "partials/_avatar.html" with person=vehicle.owner size="lg" %}
+    <div>
+      <h3 style="margin:0;font-size:var(--t-lg);">
+        <a href="{% url 'users:manage_detail' vehicle.owner.pk %}">{{ vehicle.owner.get_full_name }}</a>
+        {% if vehicle.owner.identity_verified %}
+          {% include "partials/_seal.html" with fired=True size="md" %}
+        {% endif %}
+      </h3>
+      <p style="margin:4px 0 0;color:var(--text-2);font-size:var(--t-sm);">
+        {{ vehicle.owner.email }} · {{ vehicle.owner.formatted_phone|default:"No phone" }} · Role: <strong>{{ vehicle.owner.get_user_type_display }}</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" style="margin-bottom: var(--s-6);">
+  <div class="sheet__head">
+    <h2 class="sheet__title">Vehicle specifications</h2>
+    <div>
+      {% if vehicle.status == 'ACCEPTED' %}
+        <span class="badge badge--active">Accepted</span>
+      {% elif vehicle.status == 'PENDING' %}
+        <span class="badge badge--pending">Pending review</span>
+      {% elif vehicle.status == 'REFUSED' %}
+        <span class="badge badge--suspended">Refused</span>
+      {% else %}
+        <span class="badge badge--neutral">{{ vehicle.get_status_display }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <dl class="dl dl--2">
+    <div class="dl__item">
+      <dt class="muted">License plate</dt>
+      <dd>
+        <code style="background:var(--cobalt-50);padding:6px 12px;border-radius:6px;font-size:var(--t-md);font-weight:700;color:var(--cobalt-950);">
+          {{ vehicle.plate_number }}
+        </code>
+      </dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Make & Model</dt>
+      <dd><strong>{{ vehicle.brand }} {{ vehicle.model }}</strong></dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Color</dt>
+      <dd>{{ vehicle.color }}</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Year</dt>
+      <dd>{{ vehicle.year }}</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Available passenger seats</dt>
+      <dd><strong>{{ vehicle.seats }}</strong> passenger seats</dd>
+    </div>
+    <div class="dl__item">
+      <dt class="muted">Submitted date</dt>
+      <dd>{{ vehicle.created_at|date:"j M Y, H:i" }}</dd>
+    </div>
+    {% if vehicle.verified_at %}
+      <div class="dl__item">
+        <dt class="muted">Last reviewed</dt>
+        <dd>{{ vehicle.verified_at|date:"j M Y, H:i" }} by {{ vehicle.verified_by.get_full_name|default:"Administrator" }}</dd>
+      </div>
+    {% endif %}
+  </dl>
+</div>
+
+<div class="sheet" style="margin-bottom: var(--s-6);">
+  <div class="sheet__head">
+    <h2 class="sheet__title">Verification documents</h2>
+    <span class="muted">{{ documents|length }} / 3 required</span>
+  </div>
+
+  <div class="form-grid form-grid--2" style="gap:var(--s-4);">
+    {% for doc in documents %}
+      <div style="border:1.5px solid var(--n-200);border-radius:var(--r-md);padding:var(--s-4);background:var(--n-50);display:flex;flex-direction:column;justify-content:space-between;gap:var(--s-3);">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--s-2);">
+            <strong style="font-size:var(--t-md);color:var(--cobalt-950);">
+              {{ doc.get_document_type_display }}
+            </strong>
+            {% if doc.status == 'VALID' %}
+              <span class="badge badge--active">Valid</span>
+            {% elif doc.status == 'PENDING' %}
+              <span class="badge badge--pending">Pending</span>
+            {% elif doc.status == 'EXPIRED' %}
+              <span class="badge badge--suspended">Expired</span>
+            {% endif %}
+          </div>
+          <p style="margin:0 0 6px;font-size:var(--t-sm);color:var(--text-2);">
+            <strong>Number / Ref:</strong> {{ doc.number|default:"Not specified" }}
+          </p>
+          <p style="margin:0;font-size:var(--t-sm);color:var(--text-2);">
+            <strong>Expiry date:</strong>
+            {% if doc.expiry_date %}
+              {{ doc.expiry_date|date:"j M Y" }}
+              {% if doc.is_expired %}
+                <strong style="color:var(--red-600);">(Expired)</strong>
+              {% elif doc.is_expiring_soon %}
+                <strong style="color:var(--saffron-700);">(Expires in {{ doc.days_until_expiry }} days)</strong>
+              {% endif %}
+            {% else %}
+              <span class="muted">Not applicable</span>
+            {% endif %}
+          </p>
+        </div>
+
+        <div style="padding-top:var(--s-2);border-top:1px solid var(--n-200);">
+          <a class="btn btn--secondary btn--sm btn--block" href="{% url 'vehicles:document_file' doc.pk %}" target="_blank" rel="noopener">
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-id"/></svg>Inspect document file
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <p class="muted">No documents uploaded.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="sheet" style="background:var(--cobalt-50);border:1.5px solid var(--cobalt-200);">
+  <h2 style="font-size:var(--t-lg);margin-top:0;margin-bottom:var(--s-2);">Admin decision</h2>
+  <p style="color:var(--text-2);font-size:var(--t-sm);margin-bottom:var(--s-4);">
+    Approving this vehicle marks its documents as valid and immediately promotes <strong>{{ vehicle.owner.get_full_name }}</strong> to a verified Driver.
+  </p>
+
+  <div class="actions">
+    {% if vehicle.status != 'ACCEPTED' %}
+      <form method="post" action="{% url 'vehicles:manage_accept' vehicle.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button class="btn btn--trust" type="submit">
+          <svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Approve vehicle & promote owner to driver
+        </button>
+      </form>
+    {% endif %}
+
+    {% if vehicle.status != 'REFUSED' %}
+      <a class="btn btn--danger" href="{% url 'vehicles:manage_refuse' vehicle.pk %}">
+        <svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Refuse vehicle...
+      </a>
+    {% endif %}
+
+    <div class="actions__danger">
+      <a class="btn btn--ghost" href="{% url 'vehicles:delete' vehicle.pk %}">
+        <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete vehicle
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

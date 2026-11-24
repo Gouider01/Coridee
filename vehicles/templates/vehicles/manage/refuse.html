@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Refuse {{ vehicle.plate_number }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Refuse vehicle</h1>
+    <p class="page-head__lede">
+      Rejecting <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong> (<code>{{ vehicle.plate_number }}</code>) owned by {{ vehicle.owner.get_full_name }}.
+    </p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'vehicles:manage_detail' vehicle.pk %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>Cancel
+  </a>
+</header>
+
+<section class="sheet" style="max-width: 680px;">
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" with form=form %}
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">Reason for refusal</legend>
+      <p class="fieldset__hint">
+        Please be explicit so the owner knows what needs to be updated (e.g. "The insurance policy document has expired", "The vehicle registration scan is blurry and unreadable").
+      </p>
+
+      {% include "partials/_field.html" with field=form.reason %}
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn--danger-solid" type="submit">
+        <svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Confirm vehicle refusal
+      </button>
+      <a class="btn btn--ghost" href="{% url 'vehicles:manage_detail' vehicle.pk %}">
+        Cancel
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}

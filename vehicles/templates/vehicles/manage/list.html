@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Administration{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Vehicle Administration</h1>
+    <p class="page-head__lede">Review vehicle documents, validate roadworthiness, and promote members to drivers.</p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'users:manage' %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-users"/></svg>User administration
+  </a>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat__glyph stat__glyph--cobalt">
+      <svg class="icon" aria-hidden="true"><use href="#i-flag"/></svg>
+    </span>
+    <div>
+      <b data-count="{{ total_count }}">{{ total_count }}</b>
+      <span>Total vehicles</span>
+    </div>
+  </div>
+  <div class="stat">
+    <span class="stat__glyph stat__glyph--saffron">
+      <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+    </span>
+    <div>
+      <b data-count="{{ pending_count }}">{{ pending_count }}</b>
+      <span>Pending review</span>
+    </div>
+  </div>
+  <div class="stat">
+    <span class="stat__glyph stat__glyph--trust">
+      <svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>
+    </span>
+    <div>
+      <b data-count="{{ accepted_count }}">{{ accepted_count }}</b>
+      <span>Accepted</span>
+    </div>
+  </div>
+  <div class="stat">
+    <span class="stat__glyph stat__glyph--pink">
+      <svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>
+    </span>
+    <div>
+      <b data-count="{{ refused_count }}">{{ refused_count }}</b>
+      <span>Refused</span>
+    </div>
+  </div>
+</div>
+
+<section class="sheet sheet--flush">
+  <form class="toolbar" method="get" role="search" style="display:flex;flex-wrap:wrap;gap:var(--s-3);padding:var(--s-4);border-bottom:1px solid var(--line);align-items:center;">
+    <label class="search" style="flex:1;min-width:240px;position:relative;display:flex;align-items:center;">
+      <span class="visually-hidden">Search vehicles</span>
+      <svg class="icon" aria-hidden="true" style="position:absolute;inset-inline-start:12px;color:var(--n-400);"><use href="#i-search"/></svg>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by plate, make, model or owner..." style="padding-inline-start:38px;">
+    </label>
+    <div style="min-width:180px;">
+      <select name="status" class="input" style="height:48px;" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>Pending review</option>
+        <option value="ACCEPTED" {% if selected_status == 'ACCEPTED' %}selected{% endif %}>Accepted</option>
+        <option value="REFUSED" {% if selected_status == 'REFUSED' %}selected{% endif %}>Refused</option>
+        <option value="DOCUMENTS_EXPIRED" {% if selected_status == 'DOCUMENTS_EXPIRED' %}selected{% endif %}>Documents expired</option>
+      </select>
+    </div>
+    <button class="btn btn--secondary btn--sm" type="submit">Filter</button>
+    {% if q or selected_status %}
+      <a class="btn btn--ghost btn--sm" href="{% url 'vehicles:manage' %}">Clear</a>
+    {% endif %}
+  </form>
+
+  {% if vehicles %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Plate</th>
+            <th scope="col">Vehicle</th>
+            <th scope="col">Owner</th>
+            <th scope="col" class="hide-sm">Seats</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="hide-sm">Submitted</th>
+            <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in vehicles %}
+            <tr>
+              <td class="nowrap">
+                <code style="background:var(--cobalt-50);padding:4px 8px;border-radius:6px;font-weight:700;color:var(--cobalt-950);">
+                  {{ v.plate_number }}
+                </code>
+              </td>
+              <td>
+                <strong>{{ v.brand }} {{ v.model }}</strong>
+                <span class="muted" style="display:block;font-size:var(--t-xs);">{{ v.color }} · {{ v.year }}</span>
+              </td>
+              <td>
+                <div class="table__person">
+                  {% include "partials/_avatar.html" with person=v.owner size="sm" %}
+                  <div>
+                    <a href="{% url 'users:manage_detail' v.owner.pk %}">
+                      {{ v.owner.get_full_name }}
+                    </a>
+                    {% if v.owner.identity_verified %}
+                      {% include "partials/_seal.html" with fired=True size="sm" %}
+                    {% endif %}
+                    <span style="font-size:var(--t-xs);color:var(--text-3);display:block;">{{ v.owner.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="nowrap hide-sm">{{ v.seats }}</td>
+              <td>
+                {% if v.status == 'ACCEPTED' %}
+                  <span class="badge badge--active">Accepted</span>
+                {% elif v.status == 'PENDING' %}
+                  <span class="badge badge--pending">Pending</span>
+                {% elif v.status == 'REFUSED' %}
+                  <span class="badge badge--suspended">Refused</span>
+                {% else %}
+                  <span class="badge badge--neutral">{{ v.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="nowrap hide-sm">{{ v.created_at|date:"j M Y" }}</td>
+              <td class="table__end">
+                <a class="btn btn--ghost btn--sm table__go" href="{% url 'vehicles:manage_detail' v.pk %}">
+                  Review <svg class="icon icon--sm arr" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      <svg class="icon" aria-hidden="true" style="width:36px;height:36px"><use href="#i-search"/></svg>
+      <strong>No vehicles match your criteria</strong>
+      <p>Try searching with another keyword or changing the status filter.</p>
+      <a class="btn btn--secondary" href="{% url 'vehicles:manage' %}">Show all vehicles</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
