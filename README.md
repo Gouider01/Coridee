@@ -137,9 +137,9 @@ Chaque app a déjà son préfixe d'URL (`/users/`, `/vehicles/`, `/trips/`, `/re
 - **Navigation** : pour que votre module apparaisse dans la barre du haut, nommez sa page d'accueil `index` (ex. `path("", views.trip_list, name="index")` dans `trips/urls.py`). Le lien s'affiche automatiquement.
 - **Fichiers partagés** (`config/`, `templates/base.html`, `templates/partials/`, `static/css/coride.css`, `static/js/coride.js`) : modification uniquement par pull request vers `main`.
 
-## Design system « Nabeul Glaze »
+## Design system « Cobalt Night »
 
-Une seule apparence pour toute l'application (pas de Bootstrap). Idée : **la confiance est un objet cuit** — une personne vérifiée porte un sceau cobalt à huit pointes ; le reste est une interface calme et précise.
+Une seule apparence pour toute l'application (pas de Bootstrap), **utilisée par tous les modules**. Fond cobalt avec motif de carreaux de Nabeul, feuilles blanches, rouge CoRide pour l'action principale, accents safran et turquoise. Le sceau à huit pointes marque les personnes vérifiées. Polices : Bricolage Grotesque (titres) et Readex Pro (texte), hébergées dans `static/fonts/`.
 
 | Élément | Utilisation |
 |---|---|

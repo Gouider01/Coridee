@@ -1,13 +1,13 @@
-{# The CoRide verification seal: an eight-point tile.                                #}
+{# The CoRide verification seal: an eight-point tile (khatem).                         #}
 {# Usage: {% include "partials/_seal.html" with fired=person.identity_verified size="lg" %} #}
-{# size: "" (24px, inline) | "lg" (56px) | "xl" (88px)                                    #}
-<span class="seal{% if fired %} seal--fired{% endif %}{% if size %} seal--{{ size }}{% endif %}" role="img"
+{# size: "" (24px, inline) | "lg" (56px) | "xl" (88px). Add firing=True to play the     #}
+{# one-time firing animation (unfired outline filling with cobalt).                     #}
+<span class="seal{% if fired %} seal--fired{% endif %}{% if firing %} seal--firing{% endif %}{% if size %} seal--{{ size }}{% endif %}" role="img"
       aria-label="{% if fired %}Verified identity{% else %}Identity not verified yet{% endif %}">
   <svg viewBox="0 0 48 48" aria-hidden="true">
-    <rect class="seal__tile" x="9" y="9" width="30" height="30" rx="2.5"/>
-    <rect class="seal__tile" x="9" y="9" width="30" height="30" rx="2.5" transform="rotate(45 24 24)"/>
-    <rect class="seal__inner" x="13.5" y="13.5" width="21" height="21" rx="1.5"/>
-    <rect class="seal__inner" x="13.5" y="13.5" width="21" height="21" rx="1.5" transform="rotate(45 24 24)"/>
+    <path class="seal__tile" pathLength="64" d="M24.00 2.79 L30.21 9.00 L39.00 9.00 L39.00 17.79 L45.21 24.00 L39.00 30.21 L39.00 39.00 L30.21 39.00 L24.00 45.21 L17.79 39.00 L9.00 39.00 L9.00 30.21 L2.79 24.00 L9.00 17.79 L9.00 9.00 L17.79 9.00 Z"/>
+    <path class="seal__inner" d="M24.00 10.85 L27.85 14.70 L33.30 14.70 L33.30 20.15 L37.15 24.00 L33.30 27.85 L33.30 33.30 L27.85 33.30 L24.00 37.15 L20.15 33.30 L14.70 33.30 L14.70 27.85 L10.85 24.00 L14.70 20.15 L14.70 14.70 L20.15 14.70 Z"/>
+    <circle class="seal__boss" cx="24" cy="24" r="2.6"/>
     <path class="seal__mark" d="m17.5 24.5 4.5 4.5 9-10"/>
   </svg>
 </span>

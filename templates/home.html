@@ -1,46 +1,187 @@
 {% extends "base.html" %}
 {% block title %}Carpooling you can trust{% endblock %}
+{% block body_class %}no-band{% endblock %}
 
 {% block main %}
-<section class="hero">
+<section class="hero" data-hero>
+  <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="hero__inner">
     <div>
-      <h1 class="hero__title">Share the road with people you can <em>trust</em>.</h1>
-      <p class="hero__sub">CoRide connects drivers who have empty seats with passengers going the same way between Tunisian cities. Every member uploads an ID and a selfie, and our team checks them.</p>
-      <div class="hero__cta">
-        {% if user.is_authenticated %}
-          {% if account_urls.profile %}<a class="btn btn--primary" href="{{ account_urls.profile }}">Go to my profile</a>{% endif %}
-        {% else %}
-          {% if account_urls.signup %}<a class="btn btn--primary" href="{{ account_urls.signup }}">Create your account</a>{% endif %}
-          {% if account_urls.login %}<a class="btn btn--secondary" href="{{ account_urls.login }}">I already have an account</a>{% endif %}
-        {% endif %}
+      <p class="kick"><b>New</b>Carpooling between Tunisian cities</p>
+      <h1 class="hero__title">
+        <span class="w" style="animation-delay:.05s">Share</span> <span class="w" style="animation-delay:.12s">the</span>
+        <span class="w" style="animation-delay:.19s">road</span> <span class="w" style="animation-delay:.26s">with</span>
+        <span class="w" style="animation-delay:.33s">people</span> <span class="w" style="animation-delay:.40s">you</span>
+        <span class="w" style="animation-delay:.47s">can</span>
+        <span class="hero__hl w" style="animation-delay:.54s">trust<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 8 C 30 2, 60 2, 98 6"/></svg></span><span class="w" style="animation-delay:.6s;--fire-delay:1.6s">{% include "partials/_seal.html" with fired=True firing=True size="lg" %}</span>
+      </h1>
+      <p class="hero__sub">Drivers share the seats they would drive empty. Passengers book them and split the fuel cost. Every member uploads an ID and a selfie, and our team checks them.</p>
+
+      <form class="searchbar" role="search" action="#" onsubmit="return false">
+        <label class="searchbar__field"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg><small>From</small><input name="from" placeholder="Tunis" data-type-from autocomplete="off"></label>
+        <label class="searchbar__field"><svg class="icon" aria-hidden="true"><use href="#i-flag"/></svg><small>To</small><input name="to" placeholder="Sousse" data-type-to autocomplete="off"></label>
+        <label class="searchbar__field"><svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg><small>When</small><input name="date" type="text" placeholder="Any day" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'"></label>
+        <label class="searchbar__field"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><small>Seats</small><input name="seats" type="number" min="1" max="4" value="1"></label>
+        <button class="btn btn--primary" type="submit">Search <svg class="icon icon--sm arr" aria-hidden="true"><use href="#i-search"/></svg></button>
+      </form>
+
+      {% if user.is_authenticated %}
+        {% if account_urls.profile %}<p class="hero__more">Welcome back, {{ user.first_name }}. <a href="{{ account_urls.profile }}">Go to my profile</a></p>{% endif %}
+      {% else %}
+        <p class="hero__more">New to CoRide? {% if account_urls.signup %}<a href="{{ account_urls.signup }}">Create your account</a>{% endif %}{% if account_urls.login %} · or <a href="{{ account_urls.login }}">log in</a>{% endif %}</p>
+      {% endif %}
+      <div class="trustrow">
+        <span><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>Verified identities</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg>Fair shared prices</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg>Rated after every trip</span>
       </div>
     </div>
 
-    <ol class="firing" aria-label="How verification works">
-      <li class="firing__step">
-        <span class="firing__icon"><svg class="icon" aria-hidden="true"><use href="#i-id"/></svg></span>
-        <div><strong>You upload your ID and a selfie</strong><span>Takes a minute when you sign up. You can travel right away.</span></div>
-      </li>
-      <li class="firing__step">
-        {% include "partials/_seal.html" with fired=False size="lg" %}
-        <div><strong>Our team compares them</strong><span>Until then your profile shows “verification pending”.</span></div>
-      </li>
-      <li class="firing__step firing__step--done">
-        {% include "partials/_seal.html" with fired=True size="lg" %}
-        <div><strong>Your seal is fired</strong><span>The cobalt seal appears on your profile and everywhere people see you.</span></div>
-      </li>
-    </ol>
+    <div class="route" aria-hidden="true">
+      <svg class="route__map" viewBox="0 0 500 500">
+        <circle class="route__ring" cx="250" cy="250" r="236"/><circle class="route__ring route__ring--spin" cx="250" cy="250" r="200"/><circle class="route__ring" cx="250" cy="250" r="128"/>
+        <circle class="route__city" cx="104" cy="96" r="4"/><text class="route__citylabel" x="70" y="80">Bizerte</text>
+        <circle class="route__city" cx="58" cy="300" r="4"/><text class="route__citylabel" x="20" y="326">Kairouan</text>
+        <circle class="route__city" cx="190" cy="470" r="4"/><text class="route__citylabel" x="160" y="494">Sfax</text>
+        <circle class="route__city" cx="470" cy="236" r="4"/><text class="route__citylabel" x="430" y="222">Nabeul</text>
+        <path id="route-path" class="route__track" d="M372 112 A175 175 0 1 0 372 388"/>
+        <path class="route__line" d="M372 112 A175 175 0 1 0 372 388"/>
+        <path class="route__draw" pathLength="1" d="M372 112 A175 175 0 1 0 372 388"/>
+        <circle class="route__ripple" cx="372" cy="112" r="15"/><circle class="route__ripple route__ripple--w" cx="372" cy="388" r="15"/>
+        <circle class="route__trail" r="9"><animateMotion dur="7s" begin="-.12s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1"><mpath href="#route-path"/></animateMotion></circle>
+        <circle class="route__car" r="11"><animateMotion dur="7s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1"><mpath href="#route-path"/></animateMotion></circle>
+        <circle class="route__stop" cx="372" cy="112" r="15"/><circle class="route__stop route__stop--end" cx="372" cy="388" r="15"/>
+        <text class="route__label" x="400" y="108">Tunis</text><text class="route__sub" x="400" y="128">Mon 07:30 · 3 seats</text>
+        <text class="route__label" x="400" y="394">Sousse</text><text class="route__sub" x="400" y="414">arrives 09:45</text>
+      </svg>
+      <div class="chip chip--a"><span class="avatar">LK</span><div><strong>Leila K.</strong><span>Driver · Tunis → Sousse</span></div>{% include "partials/_seal.html" with fired=True %}</div>
+      <div class="chip chip--b"><span class="avatar">SB</span><div><strong>Sami B.</strong><span>Passenger · 1 seat booked</span></div>{% include "partials/_seal.html" with fired=False %}</div>
+      <div class="ticket"><div class="ticket__l"><small>Per seat</small>12.5 TND</div><div class="ticket__r"><strong>Seat booked</strong>QR ticket ready</div></div>
+    </div>
   </div>
 </section>
 
-<section class="band" aria-labelledby="why-title">
-  <h2 class="band__title" id="why-title">Why travel with CoRide</h2>
-  <div class="points">
-    <div class="point"><h3>Verified people</h3><p>No anonymous accounts: an administrator checks every identity, and fake ones are suspended.</p></div>
-    <div class="point"><h3>Split the fuel cost</h3><p>Drivers share the seats they would drive empty; passengers pay a fair share instead of a full fare.</p></div>
-    <div class="point"><h3>Seats managed for you</h3><p>No more counting replies in a group chat: bookings, seats and tickets are handled in one place.</p></div>
-    <div class="point"><h3>Rate each other</h3><p>After each trip, passengers and drivers leave a review, so the community stays reliable.</p></div>
+<section class="sec sec--alt" id="trips" aria-labelledby="trips-title">
+  <div class="sec__inner">
+    <div class="sec__head">
+      <div>
+        <span class="exbadge">Example trips</span>
+        <h2 class="sec__title" id="trips-title">Leaving soon</h2>
+        <p class="sec__lede">This is how trips published by verified drivers will appear. The trips, drivers and prices below are examples, not real offers.</p>
+      </div>
+    </div>
+    <div class="trips">
+      {% for trip in trips %}
+        <article class="trip trip--example reveal{% if not trip.left %} trip--full{% endif %}">
+          {% if not trip.left %}<span class="stamp">FULL</span>{% endif %}
+          <div class="trip__line">
+            <div><div class="trip__time">{{ trip.dep }}</div><div class="trip__place">{{ trip.from }}</div></div>
+            <div class="trip__dur"><span>{{ trip.dur }}</span><i></i></div>
+            <div class="trip__end"><div class="trip__time">{{ trip.arr }}</div><div class="trip__place">{{ trip.to }}</div></div>
+          </div>
+          <div class="trip__driver">
+            <span class="avatar avatar--md">{{ trip.initials }}</span>
+            <div><strong>{{ trip.driver }}{% include "partials/_seal.html" with fired=True %}</strong><span>{{ trip.car }} · ★ {{ trip.rating }}</span></div>
+          </div>
+          <div class="trip__perf"></div>
+          <div class="trip__foot">
+            <span class="seats" aria-label="{{ trip.taken }} of {{ trip.total }} seats taken">
+              {% for taken in trip.seats %}<svg class="{% if taken %}is-taken{% endif %}" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h7a2 2 0 0 1 2 2v7h1a2 2 0 0 1 2 2v5H4v-5a2 2 0 0 1 2-2V5a2 2 0 0 1 2-2z"/></svg>{% endfor %}
+              <small>{% if trip.left %}{{ trip.left }} seat{{ trip.left|pluralize }} left{% else %}No seat left{% endif %}</small>
+            </span>
+            <div class="price"><b>{{ trip.price }}</b><small>TND per seat</small></div>
+          </div>
+          {% if trip.left %}<span class="btn btn--primary btn--sm" aria-disabled="true">Book a seat</span>{% else %}<span class="btn btn--secondary btn--sm" aria-disabled="true">Join the waiting list</span>{% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="save" aria-labelledby="split-title">
+  <div class="sec__inner costsplit">
+    <div>
+      <h2 class="sec__title" id="split-title" style="max-width:13ch">The more seats you fill, the less everyone pays.</h2>
+      <p class="sec__lede">Drivers share the fuel cost with their passengers instead of driving empty seats across the country.</p>
+      <div class="plan" aria-hidden="true">
+        <svg viewBox="0 0 260 440">
+          <defs><linearGradient id="plan-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a52b8"/><stop offset="1" stop-color="#0d1c54"/></linearGradient></defs>
+          <rect x="20" y="10" width="220" height="420" rx="90" fill="url(#plan-body)"/>
+          <path class="plan__glass" d="M52 108c20-22 136-22 156 0l-14 46c-40-10-88-10-128 0z"/>
+          <path class="plan__glass" d="M60 352c38 10 102 10 140 0l10 30c-44 16-116 16-160 0z"/>
+          <path class="plan__line" d="M130 168v176"/>
+          <g class="plan__seat plan__seat--driver" transform="translate(70 186)"><rect width="50" height="58" rx="16"/><circle cx="25" cy="27" r="11"/><text x="25" y="76">Driver</text></g>
+          <g class="plan__seat" data-seat="1" transform="translate(140 186)"><rect width="50" height="58" rx="16"/><circle cx="25" cy="27" r="11"/><text x="25" y="76">1</text></g>
+          <g class="plan__seat" data-seat="2" transform="translate(48 272)"><rect width="46" height="56" rx="16"/><circle cx="23" cy="26" r="10"/><text x="23" y="74">2</text></g>
+          <g class="plan__seat" data-seat="3" transform="translate(107 272)"><rect width="46" height="56" rx="16"/><circle cx="23" cy="26" r="10"/><text x="23" y="74">3</text></g>
+          <g class="plan__seat" data-seat="4" transform="translate(166 272)"><rect width="46" height="56" rx="16"/><circle cx="23" cy="26" r="10"/><text x="23" y="74">4</text></g>
+          <rect class="plan__light--f" x="74" y="30" width="38" height="7" rx="3.5"/><rect class="plan__light--f" x="148" y="30" width="38" height="7" rx="3.5"/>
+          <rect class="plan__light--r" x="74" y="403" width="38" height="7" rx="3.5"/><rect class="plan__light--r" x="148" y="403" width="38" height="7" rx="3.5"/>
+        </svg>
+        <div>
+          <div class="plan__big"><b data-seats-filled>3</b><span>of 4 passenger seats filled</span></div>
+          <span class="plan__save" data-saving>-75% each</span>
+          <p class="plan__note">Every filled seat divides the same fuel cost between more people.</p>
+        </div>
+      </div>
+    </div>
+    <div class="calc" data-calc>
+      <div class="calc__routes" role="group" aria-label="Route">
+        <button type="button" data-km="140" aria-pressed="true">Tunis → Sousse</button>
+        <button type="button" data-km="270" aria-pressed="false">Tunis → Sfax</button>
+        <button type="button" data-km="65" aria-pressed="false">Tunis → Bizerte</button>
+        <button type="button" data-km="150" aria-pressed="false">Tunis → Kairouan</button>
+      </div>
+      <div class="calc__row"><b id="pax-label">Passengers with the driver</b><output data-pax-out>3</output></div>
+      <input type="range" min="0" max="4" value="3" aria-labelledby="pax-label" data-pax>
+      <div class="calc__res">
+        <div><small>Fuel, driving alone</small><b data-alone>24.75<em>TND</em></b></div>
+        <div class="is-hot"><small>Each person pays</small><b data-each>6.19<em>TND</em></b></div>
+      </div>
+      <p class="calc__note">Estimate only: 7 L/100 km and fuel at 2.525 TND/L, shared between the driver and the passengers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec--alt" id="how" aria-labelledby="how-title">
+  <div class="sec__inner">
+    <div class="sec__head"><div><h2 class="sec__title" id="how-title">How CoRide works</h2><p class="sec__lede">One account, two ways to travel: book a seat as a passenger, or share yours as a driver.</p></div></div>
+    <div class="roles" data-roles role="group" aria-label="Show steps for"><span class="roles__knob"></span><button type="button" data-role="p" aria-pressed="true">I am a passenger</button><button type="button" data-role="d" aria-pressed="false">I am a driver</button></div>
+    <div class="how" data-how>
+      <div class="how__step"><span class="how__num">1</span><div><strong>Search a trip</strong><span>Choose where you leave from, where you go and when.</span></div></div>
+      <div class="how__step"><span class="how__num">2</span><div><strong>Book your seat</strong><span>The driver accepts, a chat opens and you get a QR ticket.</span></div></div>
+      <div class="how__step"><span class="how__num">3</span><div><strong>Ride and rate</strong><span>Show your ticket at pickup, then rate each other after the trip.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee__track">
+  {% for route in routes %}<span>{{ route }} {% include "partials/_seal.html" with fired=True size="lg" %}</span>{% endfor %}
+</div></div>
+
+<div class="frieze" aria-hidden="true"></div>
+<section class="why" id="why" aria-labelledby="why-title">
+  <div class="why__inner">
+    <h2 class="why__title" id="why-title">Why travel with <em>CoRide</em></h2>
+    <div class="points">
+      <div class="point" data-tilt><span class="point__glyph"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span><h3>Verified people</h3><p>No anonymous accounts: an administrator checks every identity, and fake ones are suspended.</p></div>
+      <div class="point" data-tilt><span class="point__glyph"><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg></span><h3>Split the fuel cost</h3><p>Drivers share seats they would drive empty; passengers pay a fair share instead of a full fare.</p></div>
+      <div class="point" data-tilt><span class="point__glyph"><svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg></span><h3>Seats managed for you</h3><p>No more counting replies in a group chat: bookings, seats and tickets in one place.</p></div>
+      <div class="point" data-tilt><span class="point__glyph"><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg></span><h3>Rate each other</h3><p>After each trip, passengers and drivers review each other, so the community stays reliable.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="closer">
+  <div class="closer__inner">
+    <h2>Your next trip starts with a seal.</h2>
+    {% if user.is_authenticated %}
+      <p>Your account is ready. Keep your profile up to date so drivers and passengers know who they travel with.</p>
+      {% if account_urls.profile %}<a class="btn btn--white" href="{{ account_urls.profile }}">Go to my profile <svg class="icon icon--sm arr" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>{% endif %}
+    {% else %}
+      <p>Create your account in two minutes and book your first seat today.</p>
+      {% if account_urls.signup %}<a class="btn btn--white" href="{{ account_urls.signup }}">Create your account <svg class="icon icon--sm arr" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>{% endif %}
+    {% endif %}
   </div>
 </section>
 {% endblock %}
