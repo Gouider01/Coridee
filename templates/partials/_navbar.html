@@ -6,24 +6,20 @@
       <span>CoRide</span>
     </a>
 
-    {% if user.is_authenticated %}
-      <nav class="nav" id="main-nav" aria-label="Main">
-        {% for item in module_nav %}
-          <a class="nav__link" href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
-        {% endfor %}
-        {% if user.is_administrator and account_urls.manage %}
-          <a class="nav__link" href="{{ account_urls.manage }}"{% if account_urls.manage in request.path %} aria-current="page"{% endif %}>Users</a>
-        {% endif %}
-      </nav>
-    {% endif %}
+    <nav class="nav" id="main-nav" aria-label="Main">
+      {% for item in module_nav %}
+        <a class="nav__link" href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+      {% endfor %}
+      {% if user.is_authenticated and user.is_administrator and account_urls.manage %}
+        <a class="nav__link" href="{{ account_urls.manage }}"{% if account_urls.manage in request.path %} aria-current="page"{% endif %}>Users</a>
+      {% endif %}
+    </nav>
 
     <div class="bar__end">
       {% if user.is_authenticated %}
-        {% if module_nav or user.is_administrator %}
-          <button type="button" class="btn btn--ghost nav-toggle" aria-controls="main-nav" aria-expanded="false" data-nav-toggle>
+        {% if module_nav or user.is_administrator %}<button type="button" class="btn btn--ghost nav-toggle" aria-controls="main-nav" aria-expanded="false" data-nav-toggle>
             <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg><span class="visually-hidden">Menu</span>
-          </button>
-        {% endif %}
+          </button>{% endif %}
         <details class="menu" data-menu>
           <summary class="menu__trigger">
             {% include "partials/_avatar.html" with person=user size="sm" %}
@@ -49,6 +45,7 @@
           </div>
         </details>
       {% else %}
+        <span class="bar__trust">{% include "partials/_seal.html" with fired=True %}Verified members only</span>
         {% if account_urls.login %}<a class="btn btn--ghost" href="{{ account_urls.login }}">Log in</a>{% endif %}
         {% if account_urls.signup %}<a class="btn btn--primary" href="{{ account_urls.signup }}">Sign up</a>{% endif %}
       {% endif %}
