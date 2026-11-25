@@ -1,0 +1,16 @@
+{# Search + status filter. Needs: q, status, statuses #}
+<form class="toolbar" method="get" role="search">
+  <label class="search">
+    <span class="visually-hidden">Search</span>
+    <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+    <input type="search" name="q" value="{{ q }}" placeholder="{{ placeholder|default:'Search by city or ticket code' }}">
+  </label>
+  <label class="field"><span class="visually-hidden">Status</span>
+    <select name="status" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      {% for value, label in statuses %}<option value="{{ value }}"{% if value == status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <button class="btn btn--secondary btn--sm" type="submit">Filter</button>
+  <span class="count">{{ reservations|length }} of {{ total }}</span>
+</form>
