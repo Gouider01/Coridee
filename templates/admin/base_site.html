@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | CoRide admin{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="icon" href="{% static 'img/coride-icon.png' %}">
+<link rel="stylesheet" href="{% static 'css/coride-admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <img src="{% static 'img/coride-icon.png' %}" alt="" width="32" height="32">
+    <span>CoRide</span><em>Administration</em>
+  </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
