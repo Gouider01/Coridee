@@ -6,8 +6,6 @@ venv/
 env/
 
 # Django
-db.sqlite3
-media/
 staticfiles/
 *.log
 .env
@@ -25,7 +23,6 @@ Thumbs.db
 .playwright-mcp/
 .superpowers/
 .impeccable/questions/
-private_media/
 
 # AI design / planning tooling (keep local, never commit)
 .impeccable/
