@@ -130,7 +130,7 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ["rating", "comment"]
         widgets = {
-            "rating": forms.Select(
+            "rating": forms.RadioSelect(
                 choices=[
                     (rating, f"{rating} star{'s' if rating != 1 else ''}")
                     for rating in range(1, 6)

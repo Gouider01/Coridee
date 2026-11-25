@@ -237,12 +237,8 @@ def index(request):
     return redirect("communication:conversation_list")
 
 
-def conversation_list(request):
-    participant, response = _participant_or_redirect(request)
-    if response:
-        return response
-
-    query = request.GET.get("q", "").strip()[:120]
+def _conversation_overview(participant, query=""):
+    """Conversations of `participant` with unread count, preview and last activity."""
     member_identity = Q(participants__pk=participant.pk)
     read_receipts = MessageRead.objects.filter(
         participant_identity_q("participant", participant),
@@ -289,6 +285,43 @@ def conversation_list(request):
                 continue
             other_participants.append(member)
         conversation.other_participants = other_participants
+        last = (
+            Message.objects.filter(conversation=conversation, deleted_at__isnull=True)
+            .select_related("sender_participant__user")
+            .order_by("-id")
+            .first()
+        )
+        conversation.last_message = last
+        conversation.last_at = last.sent_at if last else conversation.opened_at
+        if last is None:
+            conversation.last_preview = ""
+        else:
+            text = last.content.strip() or "Attachment"
+            mine = last.sender_participant.matches_identity(participant)
+            if mine:
+                text = f"You: {text}"
+            elif conversation.chat_type == Conversation.ChatType.GROUP:
+                text = f"{last.sender_participant.display_label.split(' ')[0]}: {text}"
+            conversation.last_preview = text
+        local = timezone.localtime(conversation.last_at)
+        today = timezone.localdate()
+        if local.date() == today:
+            conversation.last_label = local.strftime("%H:%M")
+        elif local.date() == today - timedelta(days=1):
+            conversation.last_label = "Yesterday"
+        else:
+            conversation.last_label = local.strftime("%b %d").replace(" 0", " ")
+    conversations = sorted(conversations, key=lambda c: c.last_at, reverse=True)
+    return conversations
+
+
+def conversation_list(request):
+    participant, response = _participant_or_redirect(request)
+    if response:
+        return response
+
+    query = request.GET.get("q", "").strip()[:120]
+    conversations = _conversation_overview(participant, query)
     return render(
         request,
         "communication/conversation_list.html",
@@ -1467,3 +1500,36 @@ def admin_review_export_csv(request):
             ]
         )
     return response
+
+
+@require_GET
+def chat_bubble_state(request):
+    """Small JSON feed for the floating messages bubble (unread total + recent chats)."""
+    participant = get_request_participant(request)
+    if participant is None:
+        return JsonResponse({"error": "login required"}, status=401)
+    conversations = _conversation_overview(participant)
+    chats = []
+    for conversation in conversations[:5]:
+        title = conversation.title or ", ".join(
+            other.display_label for other in conversation.other_participants
+        ) or "New conversation"
+        chats.append(
+            {
+                "id": conversation.pk,
+                "title": title,
+                "initial": title[:1].upper(),
+                "group": conversation.chat_type == Conversation.ChatType.GROUP,
+                "preview": (conversation.last_preview or "No messages yet")[:80],
+                "time": conversation.last_label,
+                "unread": conversation.unread_count,
+                "url": reverse("communication:conversation_detail", args=[conversation.pk]),
+            }
+        )
+    return JsonResponse(
+        {
+            "unread_total": sum(c.unread_count for c in conversations),
+            "chats": chats,
+            "list_url": reverse("communication:conversation_list"),
+        }
+    )

@@ -2128,3 +2128,107 @@
 .comm .invite-type { color: var(--cobalt-700); background: var(--cobalt-100); }
 .comm .message-list { background: var(--n-50); }
 .comm .chat-heading { background: var(--sheet); }
+
+
+/* ==========================================================================
+   UI polish (v2): aligned layout, bubbles, day separators, list previews,
+   star rating. Everything stays scoped under .comm.
+   ========================================================================== */
+.comm .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Same container as the navbar so the title lines up with the logo */
+.comm .page { width: min(100%, var(--page-max)); padding-inline: var(--s-5); margin-inline: auto; }
+.comm .page-chat { width: min(100%, var(--page-max)); margin-top: 0; }
+
+/* ---- Chat list ---------------------------------------------------------- */
+.comm .page-heading { align-items: flex-end; flex-wrap: wrap; gap: var(--s-4); }
+.comm .list-tools { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.comm .list-tools .room-search { display: flex; align-items: center; gap: var(--s-2); margin: 0; }
+.comm .list-tools .room-search input { min-width: 260px; min-height: 48px; padding: 0 var(--s-4);
+    color: var(--n-0); background: rgb(255 255 255 / 0.1); border: 1px solid rgb(195 210 247 / 0.35); }
+.comm .list-tools .room-search input::placeholder { color: var(--cobalt-200); }
+.comm .list-tools .room-search .text-button { color: var(--cobalt-200); }
+.comm .conversation-card { align-items: center; }
+.comm .conversation-card h2 { font-size: 1rem; }
+.comm .conversation-preview { margin: 2px 0 0; color: var(--text); font-size: var(--t-sm);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comm .conversation-card.has-unread .conversation-preview { font-weight: 700; color: var(--cobalt-950); }
+.comm .conversation-sub { margin: 2px 0 0; color: var(--n-500, #6b7390); font-size: var(--t-xs, .75rem); }
+.comm .conversation-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.comm .conversation-time { color: var(--n-500, #6b7390); font-size: var(--t-xs, .75rem); }
+
+/* ---- Chat page: use the height, drop the redundant sub-nav -------------- */
+.comm .page-chat .comm-nav { display: none; }
+.comm .page-chat .chat-shell { min-height: calc(100dvh - var(--bar-h, 72px) - 84px);
+    max-height: calc(100dvh - var(--bar-h, 72px) - 84px); margin-top: var(--s-5); }
+.comm .chat-heading { padding: 0.9rem 1.25rem; }
+.comm .chat-heading .back-link { font-size: var(--t-xs, .75rem); }
+.comm .chat-heading h1 { font-size: 1.15rem; }
+
+/* ---- Bubbles ------------------------------------------------------------ */
+.comm .message-list { padding: 1rem 1.25rem; gap: 2px; background: var(--n-50); }
+.comm .message { width: auto; max-width: min(78%, 640px); align-self: flex-start;
+    margin-top: 10px; padding: 0; background: transparent !important; }
+.comm .message.message-grouped { margin-top: 0; }
+.comm .message-content { margin: 0; padding: 0.55rem 0.9rem; width: fit-content; max-width: 100%;
+    background: var(--sheet); border: 1px solid var(--n-200); border-radius: 1rem 1rem 1rem 0.3rem;
+    line-height: 1.45; overflow-wrap: anywhere; }
+.comm .message-meta { padding: 0 0.25rem 2px; font-size: 0.72rem; }
+.comm .message-meta strong { font-size: 0.8rem; }
+.comm .message-grouped .message-content { border-top-left-radius: 0.3rem; }
+
+/* Mine: right-aligned cobalt bubble, no avatar, no name */
+.comm .message-mine { align-self: flex-end; grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "meta" "reply" "content" "attachment" "reactions" "actions"; justify-items: end; }
+.comm .message-mine .message-avatar,
+.comm .message-mine .message-meta strong { display: none; }
+.comm .message-mine .message-meta { justify-content: flex-end; }
+.comm .message-mine .message-content { color: var(--n-0); background: var(--cobalt-700);
+    border-color: var(--cobalt-700); border-radius: 1rem 1rem 0.3rem 1rem; }
+.comm .message-mine.message-grouped .message-content { border-top-right-radius: 0.3rem; }
+.comm .message-mine .message-reply { justify-self: end; }
+.comm .message-mine .message-reaction-row, .comm .message-mine .message-toolbar { justify-self: end; }
+.comm .read-status { color: var(--cobalt-600); font-weight: 600; }
+.comm .message-deleted .message-content { color: var(--n-500, #6b7390); background: transparent;
+    border-style: dashed; font-style: italic; }
+
+/* In a private chat the header already names the other person */
+.comm .chat-shell[data-group="false"] .message:not(.message-mine) .message-meta strong { display: none; }
+
+/* ---- Day separators ------------------------------------------------------ */
+.comm .day-separator { display: flex; align-items: center; gap: var(--s-3); margin: 14px 0 4px;
+    color: var(--n-500, #6b7390); font-size: var(--t-xs, .75rem); font-weight: 600; flex: none; }
+.comm .day-separator::before, .comm .day-separator::after { content: ""; flex: 1; height: 1px; background: var(--n-200); }
+
+/* ---- Composer ------------------------------------------------------------ */
+.comm .send-form { padding: 0.75rem 1.25rem 0.25rem; background: var(--sheet); border-top: 1px solid var(--n-200); }
+.comm .chat-footnote { padding: 0 1.25rem 0.75rem; margin: 0; }
+
+/* ---- Star rating ----------------------------------------------------------- */
+.comm .star-rating { border: 0; margin: 0 0 var(--s-4); padding: 0; }
+.comm .star-rating legend { padding: 0; margin-bottom: var(--s-2); font-weight: 600; }
+.comm .star-rating-row { display: inline-flex; gap: 4px; }
+.comm .star-rating label { position: relative; margin: 0; cursor: pointer; font-size: 2.4rem; line-height: 1;
+    color: var(--n-300); transition: color 120ms ease, transform 120ms ease; }
+.comm .star-rating input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+.comm .star-rating label:has(input:checked),
+.comm .star-rating label:has(~ label input:checked) { color: var(--saffron-400, #f5b301); }
+.comm .star-rating-row:hover label { color: var(--n-300); }
+.comm .star-rating-row label:hover,
+.comm .star-rating-row label:has(~ label:hover) { color: var(--saffron-400, #f5b301); transform: scale(1.08); }
+.comm .star-rating label:has(input:focus-visible) { outline: 2px solid var(--focus); border-radius: 6px; }
+
+@media (max-width: 720px) {
+    .comm .page { padding-inline: var(--s-4); }
+    .comm .message { max-width: 90%; }
+    .comm .list-tools { width: 100%; }
+    .comm .list-tools .room-search { flex: 1; }
+    .comm .list-tools .room-search input { min-width: 0; width: 100%; }
+    .comm .page-chat .chat-shell { margin-top: var(--s-3); border-radius: var(--r-md); }
+    .comm .chat-heading { padding: 0.75rem; flex-direction: column; align-items: stretch; gap: 0.5rem; }
+    .comm .chat-heading .chat-title { flex: none; width: 100%; }
+    .comm .chat-heading h1 { overflow-wrap: anywhere; }
+    .comm .chat-header-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-start; width: 100%; }
+}
+
+.comm #pinned-toggle[hidden] { display: none !important; }

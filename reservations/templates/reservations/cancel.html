@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Cancel booking{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block content %}
+<a class="crumb" href="{% url 'reservations:detail' r.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>Booking #{{ r.pk }}</a>
+<header class="page-head"><div>
+  <h1 class="page-head__title">Cancel this booking?</h1>
+  <p class="page-head__lede">{{ r.trip.departure_city }} → {{ r.trip.arrival_city }} · {{ r.trip.departure_datetime|date:"j M Y, H:i" }} · {{ r.seats }} seat{{ r.seats|pluralize }}</p>
+</div></header>
+<section class="danger-zone">
+  {% if allowed %}
+    <h2>The seats will be free again</h2>
+    <p>Cancellation is allowed up to 2 hours before departure. The driver is no longer expecting you.</p>
+    <form method="post" class="actions mt-6">
+      {% csrf_token %}
+      <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Cancel booking</button>
+      <a class="btn btn--secondary" href="{% url 'reservations:detail' r.pk %}">Keep it</a>
+    </form>
+  {% else %}
+    <h2>You cannot cancel this booking</h2>
+    <p>{{ reason }}</p>
+    <div class="actions mt-6"><a class="btn btn--secondary" href="{% url 'reservations:detail' r.pk %}">Back</a></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -15,9 +15,18 @@
     <form method="post">
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
-        <label for="{{ form.rating.id_for_label }}">Rating</label>
-        {{ form.rating }}
-        {{ form.rating.errors }}
+        <fieldset class="star-rating">
+            <legend>Rating</legend>
+            <div class="star-rating-row">
+                {% for radio in form.rating %}
+                    <label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }}">
+                        {{ radio.tag }}<span aria-hidden="true">★</span>
+                        <span class="sr">{{ radio.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {{ form.rating.errors }}
+        </fieldset>
         <label for="{{ form.comment.id_for_label }}">Comment</label>
         {{ form.comment }}
         {{ form.comment.errors }}

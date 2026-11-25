@@ -6,7 +6,7 @@
 
 
 {% block content %}
-<section class="chat-shell" data-conversation-id="{{ conversation.id }}">
+<section class="chat-shell" data-conversation-id="{{ conversation.id }}" data-group="{{ is_group_chat|yesno:'true,false' }}">
     <header class="chat-heading">
         <div class="chat-title">
             <a class="back-link" href="{% url 'communication:conversation_list' %}">← All chats</a>
@@ -25,14 +25,10 @@
                         {% endif %}
                     </h1>
                     <p>
-                        <span id="other-participant-name">
-                            {% if other_participant_names %}
-                                {{ other_participant_names }}
-                            {% else %}
-                                Waiting for someone to join
-                            {% endif %}
+                        <span id="other-participant-name"{% if not is_group_chat %} hidden{% endif %}>
+                            {% if other_participant_names %}{{ other_participant_names }}{% else %}Waiting for someone to join{% endif %}
                         </span>
-                        {% if conversation.trip_reference %} · Trip {{ conversation.trip_reference }}{% endif %}
+                        {% if is_group_chat and conversation.trip_reference %} · {% endif %}{% if conversation.trip_reference %}Trip {{ conversation.trip_reference }}{% endif %}{% if conversation.departure_at %} · departs {{ conversation.departure_at|date:"D j M, H:i" }}{% endif %}
                     </p>
                     <p class="participant-presence">
                         <span id="participant-presence-dot" class="presence-dot{% if other_online %} presence-online{% endif %}"></span>
@@ -46,7 +42,7 @@
                 <span aria-hidden="true">☎</span> <span>Call</span>
             </button>
             <button id="message-search-toggle" class="icon-button" type="button" aria-label="Search messages" title="Search messages">Search</button>
-            <button id="pinned-toggle" class="icon-button" type="button" aria-label="Show pinned messages" title="Pinned messages">
+            <button id="pinned-toggle" class="icon-button"{% if not pinned_messages %} hidden{% endif %} type="button" aria-label="Show pinned messages" title="Pinned messages">
                 Pins <span id="pinned-count">{{ pinned_messages|length }}</span>
             </button>
             <span id="chat-status" class="status {% if conversation.is_open %}status-open{% else %}status-closed{% endif %}">
@@ -319,5 +315,6 @@
 </template>
 
 <script src="{% static 'communication/conversation_detail.js' %}" defer></script>
+<script src="{% static 'communication/chat_polish.js' %}" defer></script>
 <script src="{% static 'communication/voice_call.js' %}" defer></script>
 {% endblock %}

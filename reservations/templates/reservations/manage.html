@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}All reservations{% endblock %}
+{% block content %}
+<header class="page-head"><div>
+  <h1 class="page-head__title">All reservations</h1>
+  <p class="page-head__lede">Every booking on the platform.</p>
+</div></header>
+<div class="stats">
+  <div class="stat"><span class="stat__glyph stat__glyph--cobalt"><svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg></span><div><b>{{ total }}</b><span>Reservations</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--saffron"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg></span><div><b>{{ pending_count }}</b><span>Pending</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--trust"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><div><b>{{ accepted_count }}</b><span>Accepted</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--pink"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg></span><div><b>{{ closed_count }}</b><span>Cancelled, refused, expired</span></div></div>
+</div>
+<section class="sheet sheet--flush">
+  {% include "reservations/_toolbar.html" with placeholder="Search by passenger, city or code" %}
+  {% if reservations %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr>
+      <th scope="col">#</th><th scope="col">Passenger</th><th scope="col">Trip</th><th scope="col">Seats</th>
+      <th scope="col" class="hide-sm">Driver</th><th scope="col">Status</th>
+      <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+    </tr></thead>
+    <tbody>
+    {% for r in reservations %}
+      <tr>
+        <td>{{ r.pk }}</td>
+        <td><a href="{% url 'reservations:detail' r.pk %}">{{ r.passenger.get_full_name }}</a></td>
+        <td>{{ r.trip.departure_city }} → {{ r.trip.arrival_city }}<span class="muted small"> · {{ r.trip.departure_datetime|date:"j M, H:i" }}</span></td>
+        <td>{{ r.seats }}</td>
+        <td class="hide-sm">{{ r.trip.driver.get_full_name }}</td>
+        <td><span class="badge badge--{{ r.badge }}">{{ r.get_status_display }}</span></td>
+        <td class="table__end nowrap">
+          <a class="btn btn--ghost btn--sm" href="{% url 'reservations:detail' r.pk %}">Open</a>
+          <a class="btn btn--danger btn--sm" href="{% url 'reservations:manage_delete' r.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="empty">
+    <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-calendar"/></svg>
+    <strong>No reservation found</strong><p>Change the filters or wait for the first booking.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

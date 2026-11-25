@@ -1,0 +1,8 @@
+{# Trip card used on the booking pages. Needs: trip #}
+<dl class="dl dl--2">
+  <div class="dl__item"><dt>Route</dt><dd>{{ trip.departure_city }} → {{ trip.arrival_city }}</dd></div>
+  <div class="dl__item"><dt>Departure</dt><dd>{{ trip.departure_datetime|date:"l j F Y, H:i" }}</dd></div>
+  <div class="dl__item"><dt>Driver</dt><dd>{{ trip.driver.get_full_name }}</dd></div>
+  <div class="dl__item"><dt>Price per seat</dt><dd>{{ trip.price_per_seat }} TND</dd></div>
+  <div class="dl__item"><dt>Seats left</dt><dd>{{ trip.remaining_seats }} of {{ trip.seats }}</dd></div>
+</dl>

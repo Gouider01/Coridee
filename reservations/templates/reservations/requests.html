@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Requests received{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Requests received</h1>
+    <p class="page-head__lede">Accept or refuse the passengers who want a seat in your trips.</p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'reservations:index' %}">My bookings</a>
+</header>
+<div class="stats">
+  <div class="stat"><span class="stat__glyph stat__glyph--cobalt"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg></span><div><b>{{ total }}</b><span>Requests</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--saffron"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg></span><div><b>{{ pending_count }}</b><span>Waiting for you</span></div></div>
+</div>
+<section class="sheet sheet--flush">
+  {% include "reservations/_toolbar.html" with placeholder="Search by passenger, city or code" %}
+  {% if reservations %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr>
+      <th scope="col">Passenger</th><th scope="col">Trip</th><th scope="col">Seats</th><th scope="col">Status</th>
+      <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+    </tr></thead>
+    <tbody>
+    {% for r in reservations %}
+      <tr>
+        <td><a href="{% url 'reservations:detail' r.pk %}">{{ r.passenger.get_full_name }}</a></td>
+        <td>{{ r.trip.departure_city }} → {{ r.trip.arrival_city }}<span class="muted small"> · {{ r.trip.departure_datetime|date:"j M, H:i" }}</span></td>
+        <td>{{ r.seats }}</td>
+        <td><span class="badge badge--{{ r.badge }}">{{ r.get_status_display }}</span></td>
+        <td class="table__end nowrap">
+          {% if r.is_pending %}
+          <div class="actions" style="justify-content:flex-end">
+            <form method="post" action="{% url 'reservations:accept' r.pk %}">{% csrf_token %}<button class="btn btn--trust btn--sm" type="submit">Accept</button></form>
+            <form method="post" action="{% url 'reservations:refuse' r.pk %}">{% csrf_token %}<button class="btn btn--secondary btn--sm" type="submit">Refuse</button></form>
+          </div>
+          {% else %}<a class="btn btn--ghost btn--sm" href="{% url 'reservations:detail' r.pk %}">Open</a>{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="empty">
+    <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-users"/></svg>
+    <strong>No request</strong><p>Requests appear here when passengers book your trips.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

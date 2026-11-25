@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete reservation #{{ r.pk }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block content %}
+<a class="crumb" href="{% url 'reservations:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All reservations</a>
+<header class="page-head"><div>
+  <h1 class="page-head__title">Delete this reservation?</h1>
+  <p class="page-head__lede">#{{ r.pk }} · {{ r.passenger.get_full_name }} · {{ r.trip.departure_city }} → {{ r.trip.arrival_city }} · {{ r.seats }} seat{{ r.seats|pluralize }}</p>
+</div></header>
+<section class="danger-zone">
+  <h2>This cannot be undone</h2>
+  <p>If the booking still holds seats, they go back to the trip.</p>
+  <form method="post" class="actions mt-6">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete reservation</button>
+    <a class="btn btn--secondary" href="{% url 'reservations:manage' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

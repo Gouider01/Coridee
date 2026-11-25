@@ -1,0 +1,16 @@
+{% load static %}
+{# Floating "Messages" bubble (Instagram-style). Included once by templates/base.html for logged-in users. #}
+<link rel="stylesheet" href="{% static 'communication/chat_bubble.css' %}">
+<div class="cb" id="chat-bubble" data-state-url="{% url 'communication:chat_bubble_state' %}" hidden>
+  <section class="cb-panel" id="cb-panel" aria-label="Recent chats" hidden>
+    <header class="cb-head"><strong>Messages</strong>
+      <a id="cb-all" href="{% url 'communication:conversation_list' %}">See all</a></header>
+    <ul class="cb-list" id="cb-list"></ul>
+  </section>
+  <button class="cb-pill" id="cb-toggle" type="button" aria-expanded="false" aria-controls="cb-panel">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 3C6.9 3 3 6.6 3 11c0 2.4 1.2 4.5 3 5.9V21l3.6-2c.8.2 1.6.3 2.4.3 5.1 0 9-3.6 9-8.3S17.1 3 12 3z"/></svg>
+    <span class="cb-label">Messages</span>
+    <span class="cb-badge" id="cb-badge" hidden>0</span>
+  </button>
+</div>
+<script src="{% static 'communication/chat_bubble.js' %}" defer></script>

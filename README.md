@@ -166,3 +166,12 @@ Couleurs : rouge CoRide `#c8102e` (action principale), cobalt `#1d3f8f` (confian
 3. Commitez vos migrations (`python manage.py makemigrations <app>`).
 4. Ouvrez une pull request vers `main` ; elle est relue avant fusion.
 
+
+---
+## Quick start (uv)
+```
+uv run manage.py runserver
+```
+`db.sqlite3` ships pre-seeded with demo accounts (password `Demo12345!`):
+`admin@coride.tn`, `leila@coride.tn` / `youssef@coride.tn` (drivers), `sami@coride.tn` / `nour@coride.tn` (passengers).
+Log in with the **e-mail address**. To reset: delete `db.sqlite3`, then `uv run manage.py migrate` and `uv run manage.py seed_reservations_demo`.

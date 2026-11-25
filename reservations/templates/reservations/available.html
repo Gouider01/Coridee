@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Book a seat{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Book a seat</h1>
+    <p class="page-head__lede">Trips with free seats. Pick one and send your request.</p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'reservations:index' %}">My bookings</a>
+</header>
+<section class="sheet sheet--flush">
+  <form class="toolbar" method="get" role="search">
+    <label class="search">
+      <span class="visually-hidden">Search trips</span>
+      <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by city">
+    </label>
+    <span class="count">{{ trips|length }} trip{{ trips|length|pluralize }}</span>
+  </form>
+  {% if trips %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr>
+      <th scope="col">Route</th><th scope="col">Departure</th>
+      <th scope="col" class="hide-sm">Driver</th><th scope="col">Seats left</th><th scope="col">Price</th>
+      <th scope="col" class="table__end"><span class="visually-hidden">Action</span></th>
+    </tr></thead>
+    <tbody>
+    {% for t in trips %}
+      <tr>
+        <td>{{ t.departure_city }} → {{ t.arrival_city }}</td>
+        <td class="nowrap">{{ t.departure_datetime|date:"j M, H:i" }}</td>
+        <td class="hide-sm">{{ t.driver.get_full_name }}</td>
+        <td>{{ t.remaining_seats }}</td>
+        <td class="nowrap">{{ t.price_per_seat }} TND</td>
+        <td class="table__end"><a class="btn btn--primary btn--sm" href="{% url 'reservations:book' t.pk %}">Book</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="empty">
+    <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-pin"/></svg>
+    <strong>No trip available</strong>
+    <p>No open trip matches your search. Try another city.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

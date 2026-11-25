@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Booking #{{ r.pk }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block content %}
+{% if user.is_administrator %}
+  <a class="crumb" href="{% url 'reservations:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All reservations</a>
+{% elif is_driver %}
+  <a class="crumb" href="{% url 'reservations:requests' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>Requests received</a>
+{% else %}
+  <a class="crumb" href="{% url 'reservations:index' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>My bookings</a>
+{% endif %}
+<header class="page-head"><div>
+  <h1 class="page-head__title">Booking #{{ r.pk }}</h1>
+  <p class="page-head__lede"><span class="badge badge--{{ r.badge }}">{{ r.get_status_display }}</span></p>
+</div></header>
+<div class="stack">
+  <section class="sheet">
+    <div class="sheet__head"><h2 class="sheet__title">Trip</h2></div>
+    {% with trip=r.trip %}{% include "reservations/_trip_summary.html" %}{% endwith %}
+  </section>
+  <section class="sheet">
+    <div class="sheet__head"><h2 class="sheet__title">Booking</h2></div>
+    <dl class="dl dl--2">
+      <div class="dl__item"><dt>Passenger</dt><dd>{{ r.passenger.get_full_name }}</dd></div>
+      <div class="dl__item"><dt>Seats</dt><dd>{{ r.seats }}</dd></div>
+      <div class="dl__item"><dt>Total</dt><dd>{{ r.total_price }} TND</dd></div>
+      <div class="dl__item"><dt>Requested on</dt><dd>{{ r.reservation_date|date:"j M Y, H:i" }}</dd></div>
+      {% if r.ticket_code %}<div class="dl__item"><dt>Ticket code</dt><dd><strong>{{ r.ticket_code }}</strong></dd></div>{% endif %}
+      {% if show_phones %}
+        <div class="dl__item"><dt>Passenger phone</dt><dd>{{ r.passenger.formatted_phone|default:"—" }}</dd></div>
+        <div class="dl__item"><dt>Driver phone</dt><dd>{{ r.trip.driver.formatted_phone|default:"—" }}</dd></div>
+      {% endif %}
+    </dl>
+    {% if not show_phones %}<p class="small muted mt-4">Phone numbers are shown once the driver accepts the request.</p>{% endif %}
+
+    <div class="actions mt-6">
+      {% if is_owner and r.is_pending %}
+        <a class="btn btn--secondary" href="{% url 'reservations:edit' r.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg>Change seats</a>
+      {% endif %}
+      {% if is_driver and r.is_pending %}
+        <form method="post" action="{% url 'reservations:accept' r.pk %}">{% csrf_token %}<button class="btn btn--trust" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Accept</button></form>
+        <form method="post" action="{% url 'reservations:refuse' r.pk %}">{% csrf_token %}<button class="btn btn--secondary" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>Refuse</button></form>
+      {% endif %}
+      {% if is_owner and r.is_active %}
+        <div class="actions__danger"><a class="btn btn--danger" href="{% url 'reservations:cancel' r.pk %}">Cancel booking</a></div>
+      {% endif %}
+      {% if user.is_administrator %}
+        <div class="actions__danger"><a class="btn btn--danger" href="{% url 'reservations:manage_delete' r.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete</a></div>
+      {% endif %}
+    </div>
+    {% if is_owner and r.is_active and not cancel_allowed %}<p class="small muted mt-4">{{ cancel_reason }}</p>{% endif %}
+  </section>
+</div>
+{% endblock %}
