@@ -1,0 +1,34 @@
+{% extends "communication/base.html" %}
+
+{% block title %}Join chat{% endblock %}
+
+
+{% block content %}
+<section class="form-card join-card">
+    <p class="eyebrow">YOU'RE INVITED</p>
+    <h1>{{ conversation.title|default:"A CoRide conversation" }}</h1>
+    <p class="muted">
+        {% if conversation.chat_type == "GROUP" %}
+            Join the group and pick up the conversation.
+        {% else %}
+            Join this private chat and say hello.
+        {% endif %}
+    </p>
+    <span class="invite-type">
+        {% if conversation.chat_type == "GROUP" %}Group conversation{% else %}Private conversation{% endif %}
+    </span>
+    {% if join_error %}<p class="form-error" role="alert">{{ join_error }}</p>{% endif %}
+    {% if can_join %}
+        {% if participant %}
+            {% if already_participant %}
+                <a class="button" href="{% url 'communication:conversation_detail' conversation.id %}">Open chat</a>
+            {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="button" type="submit">Join chat</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}

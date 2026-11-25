@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ vehicle.plate_number }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Delete vehicle</h1>
+    <p class="page-head__lede">Permanent removal of a vehicle and its verification documents.</p>
+  </div>
+  <a class="btn btn--secondary" href="{% url 'vehicles:detail' vehicle.pk %}">
+    <svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>Cancel
+  </a>
+</header>
+
+<section class="sheet" style="max-width: 600px;">
+  <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-4);">
+    <span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--red-50);color:var(--red-700);">
+      <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+    </span>
+    <div>
+      <h2 style="margin:0;font-size:var(--t-lg);">Are you sure?</h2>
+      <p style="margin:0;color:var(--text-2);font-size:var(--t-sm);">This operation is immediate and irreversible.</p>
+    </div>
+  </div>
+
+  <p>
+    You are about to delete <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong> with license plate <code>{{ vehicle.plate_number }}</code>.
+  </p>
+  <p class="muted" style="font-size:var(--t-sm);">
+    All attached files (driver's license, registration carte grise, insurance policy) will be permanently erased from disk.
+  </p>
+
+  <form method="post" style="margin-top:var(--s-6);">
+    {% csrf_token %}
+    <div class="actions">
+      <button class="btn btn--danger-solid" type="submit">
+        <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Yes, delete this vehicle
+      </button>
+      <a class="btn btn--secondary" href="{% url 'vehicles:detail' vehicle.pk %}">
+        Keep vehicle
+      </a>
+    </div>
+  </form>
+</section>
+{% endblock %}

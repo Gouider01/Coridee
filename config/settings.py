@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-coride-dev-key-change-me-in-production",
 )
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
 
 # --- Applications ---------------------------------------------------------
 INSTALLED_APPS = [
@@ -110,3 +110,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORIDE = {
     "MIN_AGE": 18,  # Module 1: users must be adults
 }
+
+# --- Module 5 - Communication ---------------------------------------------
+# Words refused in messages/reviews (comma separated), e.g. "word1,word2".
+COMMUNICATION_BLOCKED_TERMS = os.environ.get("CORIDE_BLOCKED_TERMS", "")
+# WebRTC servers for voice calls. Add a TURN server in production.
+COMMUNICATION_ICE_SERVERS = [{"urls": "stun:stun.l.google.com:19302"}]

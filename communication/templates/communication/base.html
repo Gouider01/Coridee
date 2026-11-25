@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block comm_title %}Messages{% endblock %}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'communication/communication.css' %}">{% endblock %}
+
+{# Module 5 lives inside the shared CoRide shell (navbar, fonts, footer). #}
+{# Its own styles are scoped under .comm so they cannot leak into other modules. #}
+{% block main %}
+<div class="comm {% block comm_class %}{% endblock %}">
+  <aside id="incoming-call-notifications" class="incoming-call-notifications"
+         data-state-url="{% url 'communication:incoming_voice_calls_state' %}" hidden aria-label="Incoming calls">
+    <div id="incoming-call-list" class="incoming-call-list" aria-live="assertive" aria-relevant="additions text"></div>
+    <p id="incoming-call-error" class="incoming-call-error" role="alert" hidden></p>
+  </aside>
+  <div class="page{% block page_class %}{% endblock %}">
+    <nav class="comm-nav" aria-label="Messages">
+      <a href="{% url 'communication:conversation_list' %}">Chats</a>
+      <a href="{% url 'communication:user_reviews' user.id %}">My reviews</a>
+      {% if user.is_staff %}<a href="{% url 'communication:admin_review_list' %}">Moderation</a>{% endif %}
+    </nav>
+    {% include "partials/_messages.html" %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'communication/incoming_calls.js' %}" defer></script>{% endblock %}

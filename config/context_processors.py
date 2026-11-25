@@ -30,10 +30,18 @@ def _safe_reverse(name):
 
 def navigation(request):
     account = {key: _safe_reverse(name) for key, name in ACCOUNT_URLS.items()}
+    user = getattr(request, "user", None)
+    is_admin = bool(user and user.is_authenticated and getattr(user, "is_administrator", False))
+
     items = []
     for url_name, label in MODULE_NAV:
-        url = _safe_reverse(url_name)
+        if is_admin and url_name == "vehicles:index":
+            url = _safe_reverse("vehicles:manage") or _safe_reverse(url_name)
+            label = "Vehicles"
+        else:
+            url = _safe_reverse(url_name)
         if url is None:
             continue
         items.append({"url": url, "label": label, "active": request.path.startswith(url)})
     return {"module_nav": items, "account_urls": account}
+

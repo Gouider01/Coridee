@@ -1,4 +1,35 @@
-"""Module 5 - Communication et avis  ·  Owner: Ahmed Ridha Lazhari  ·  Branch: Gestion-Communication"""
-from django.contrib import admin  # noqa: F401
+from django.contrib import admin
 
-# Register this module's models here.
+from .models import Review
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        "trip_reference",
+        "reviewer_participant",
+        "target_participant",
+        "rating",
+        "review_date",
+    )
+    list_filter = ("rating", "review_date")
+    search_fields = (
+        "trip_reference",
+        "reviewer_participant__user__first_name",
+        "reviewer_participant__user__last_name",
+        "target_participant__user__first_name",
+        "target_participant__user__last_name",
+        "comment",
+    )
+    readonly_fields = (
+        "conversation",
+        "trip_reference",
+        "reviewer_participant",
+        "target_participant",
+        "rating",
+        "comment",
+        "review_date",
+    )
+
+    def has_add_permission(self, request):
+        return False

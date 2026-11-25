@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}My vehicles{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">My vehicles</h1>
+    <p class="page-head__lede">Cars registered for carpooling. Once verified by our team, you can publish trips.</p>
+  </div>
+  <div class="actions">
+    {% if user.is_administrator %}
+      <a class="btn btn--secondary" href="{% url 'vehicles:manage' %}">
+        <svg class="icon" aria-hidden="true"><use href="#i-flag"/></svg>Administration queue
+      </a>
+    {% endif %}
+    {% if can_add %}
+      <a class="btn btn--primary" href="{% url 'vehicles:add' %}">
+        <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Register a vehicle
+      </a>
+    {% else %}
+      <span class="badge badge--neutral" title="Maximum 3 vehicles reached">
+        Limit reached (3/3 vehicles)
+      </span>
+    {% endif %}
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <span class="stat__glyph stat__glyph--cobalt">
+      <svg class="icon" aria-hidden="true"><use href="#i-flag"/></svg>
+    </span>
+    <div>
+      <b>{{ vehicle_count }} / {{ max_vehicles }}</b>
+      <span>Registered vehicles</span>
+    </div>
+  </div>
+</div>
+
+<section class="sheet sheet--flush">
+  {% if vehicles %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Vehicle</th>
+            <th scope="col">License plate</th>
+            <th scope="col" class="hide-sm">Seats</th>
+            <th scope="col" class="hide-sm">Year</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in vehicles %}
+            <tr>
+              <td>
+                <div class="table__person">
+                  <div>
+                    <a href="{% url 'vehicles:detail' v.pk %}"><strong>{{ v.brand }} {{ v.model }}</strong></a>
+                    <span>{{ v.color }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="nowrap">
+                <code style="background:var(--cobalt-50);padding:4px 8px;border-radius:6px;font-weight:600;color:var(--cobalt-950);letter-spacing:1px;">
+                  {{ v.plate_number }}
+                </code>
+              </td>
+              <td class="hide-sm">{{ v.seats }} seat{{ v.seats|pluralize }}</td>
+              <td class="nowrap hide-sm">{{ v.year }}</td>
+              <td>
+                {% if v.status == 'ACCEPTED' %}
+                  <span class="badge badge--active">Accepted</span>
+                {% elif v.status == 'PENDING' %}
+                  <span class="badge badge--pending">Pending review</span>
+                {% elif v.status == 'REFUSED' %}
+                  <span class="badge badge--suspended">Refused</span>
+                {% else %}
+                  <span class="badge badge--neutral">{{ v.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="table__end">
+                <div class="actions" style="justify-content: flex-end;">
+                  <a class="btn btn--ghost btn--sm" href="{% url 'vehicles:detail' v.pk %}">
+                    View
+                  </a>
+                  <a class="btn btn--secondary btn--sm" href="{% url 'vehicles:edit' v.pk %}">
+                    <svg class="icon icon--sm" aria-hidden="true"><use href="#i-edit"/></svg>Edit
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      <svg class="icon" aria-hidden="true" style="width:36px;height:36px"><use href="#i-flag"/></svg>
+      <strong>No vehicle registered yet</strong>
+      <p>Register your car and upload your documents to be verified as a driver and start sharing trips.</p>
+      {% if can_add %}
+        <a class="btn btn--primary" href="{% url 'vehicles:add' %}">
+          <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Register your first vehicle
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

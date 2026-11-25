@@ -12,7 +12,7 @@
 | # | Module | Owner | Branch | App folder | Sprint 1 status |
 |---|---|---|---|---|---|
 | 1 | Users | Alaaeddine Guouider | `Gestion-Utilisateurs` | `users/` | ✅ Done, merged into `main` |
-| 2 | Vehicles | Abdallah Salhi | `Gestion-vehicules` | `vehicles/` | To do |
+| 2 | Vehicles | Abdallah Salhi | `Gestion-vehicules` | `vehicles/` | ✅ Done, Sprint 1 complete |
 | 3 | Trips | Wasim Snoussi | `Gestion-Trajets` | `trips/` | To do |
 | 4 | Reservations | Selim Aschi | `Gestion-Reservations` | `reservations/` | To do |
 | 5 | Communication & reviews | Ahmed Ridha Lazhari | `Gestion-Communication` | `communication/` | To do |
@@ -53,11 +53,11 @@ Sprint 1 = **project structure + full CRUD (create, read, update, delete) on you
 ### Your module checklist
 
 **Module 2 · Vehicles** (`vehicles/`)
-- [ ] Models `Vehicle` and `Document` (+ statuses)
-- [ ] A passenger adds, views, edits and deletes their vehicles (max 3) and uploads licence, registration, insurance
-- [ ] Admin: list vehicles, validate or reject one with a reason
-- [ ] When a vehicle is validated, call `vehicle.owner.promote_to_driver()`
-- [ ] Validation: Tunisian plate format, year, seats, file type, expiry date
+- [x] Models `Vehicle` and `Document` (+ statuses)
+- [x] A passenger adds, views, edits and deletes their vehicles (max 3) and uploads licence, registration, insurance
+- [x] Admin: list vehicles, validate or reject one with a reason
+- [x] When a vehicle is validated, call `vehicle.owner.promote_to_driver()`
+- [x] Validation: Tunisian plate format, year, seats, file type, expiry date
 
 **Module 3 · Trips** (`trips/`)
 - [ ] Models `Trip` and `Stop` (+ status)
