@@ -168,17 +168,99 @@ Couleurs : rouge CoRide `#c8102e` (action principale), cobalt `#1d3f8f` (confian
 
 
 ---
-## Quick start (uv)
-```
-uv run manage.py runserver
-```
-`db.sqlite3` ships pre-seeded with demo accounts (password `Demo12345!`):
-`admin@coride.tn`, `leila@coride.tn` / `youssef@coride.tn` (drivers), `sami@coride.tn` / `nour@coride.tn` (passengers).
-Log in with the **e-mail address**. To reset: delete `db.sqlite3`, then `uv run manage.py migrate` and `uv run manage.py seed_reservations_demo`.
 
+# Sprint 1: run the integrated version (English)
 
-### Full demo data (all modules)
+Branch **`sprint-1`** contains all five modules working together (users, vehicles, trips,
+reservations, communication). Use it for the Sprint 1 validation.
+
+## 1. Get the code
+
+First time:
 ```
-uv run manage.py seed_all --reset
+git clone https://github.com/Gouider01/Coridee.git
+cd Coridee
+git switch sprint-1
 ```
-Creates 11 accounts (`admin@`, `leila@`, `youssef@`, `amine@`, `rania@`, `sami@`, `nour@`, `karim@`, `ines@`, `hedi@`, `marwen@coride.tn`, password `Demo12345!`), 9 vehicles in every status, 13 trips, 19 bookings, 12 chats and 5 reviews.
+Already cloned:
+```
+git fetch
+git switch sprint-1
+git pull
+```
+
+## 2. Install (once)
+
+```
+python -m venv .venv
+.venv\Scripts\activate            # Windows   (Linux/macOS: source .venv/bin/activate)
+pip install -r requirements.txt
+```
+With uv instead: `uv sync`, then put `uv run` in front of every `python manage.py` command below.
+
+## 3. Create the demo data
+
+The database is **not** in Git (`db.sqlite3`, `media/` and `private_media/` are ignored).
+Everyone builds the same demo data on their own machine:
+```
+python manage.py migrate
+python manage.py seed_all --reset
+```
+- Run it **on the morning of the demo**: trip dates are set relative to *now*
+  ("tomorrow 07:30", "left 3 hours ago").
+- Run it again at any time to start over. `--reset` only touches the demo accounts.
+- If `migrate` fails with *table "trips_stop" already exists* (you ran an older Trips version),
+  rename your `db.sqlite3` (e.g. `db.sqlite3.old`) and run the two commands again.
+
+## 4. Start the app
+
+```
+python manage.py runserver
+```
+Open http://127.0.0.1:8000. Log in with the **e-mail address**. Every password is **`Demo12345!`**.
+
+## 5. Demo accounts (all `@coride.tn`)
+
+| Account | Who | Use it to show |
+|---|---|---|
+| `admin@` | administrator | users (verify Rania / Hedi, suspended Marwen), vehicles (accept Nour's), all trips, all bookings, review moderation, admin inbox |
+| `nadia@`, `omar@` | administrators | chats with the main admin |
+| `leila@` | driver | trips in every state, a pending request from Sami, *Mark as completed* on Tunis → Nabeul |
+| `youssef@` | driver | a FULL trip, a finished trip with reviews |
+| `amine@` | driver | 2 vehicles, a cancelled trip, a finished trip not yet reviewed |
+| `rania@` | driver | identity check still pending |
+| `sami@` | passenger | bookings pending / accepted / refused / cancelled, chats, can review Leila |
+| `nour@` | passenger | vehicle PENDING (admin accepts it: she becomes a driver), can review Amine |
+| `ines@`, `karim@`, `hedi@` | passengers | more bookings; Hedi: ID pending, vehicle with 1 document |
+| `marwen@` | passenger | SUSPENDED (cannot log in until an admin reactivates him) |
+
+The command prints this list at the end too.
+
+## 6. Demo plan (one live moment per module)
+
+| Module | Owner | Show live |
+|---|---|---|
+| 1 Users | Alaaeddine | sign up with a wrong form first (errors), then a valid one; admin verifies Rania, reactivates Marwen, suspends someone |
+| 2 Vehicles | Abdallah | Nour adds a vehicle with a bad plate (errors); admin accepts Nour's pending vehicle: she becomes a driver |
+| 3 Trips | Wasim | Leila publishes a trip (errors first: past date, same cities, too many seats, price 0), edits it, cancels it; search *Tunis → Sousse*; Leila marks Tunis → Nabeul as completed |
+| 4 Reservations | Selim | Sami books a seat, Leila accepts the request (the chat opens), Sami cancels a booking |
+| 5 Communication | Ahmed | Sami ↔ Leila chat; Nour opens Amine's completed trip and clicks *Review Amine*; admin deletes a review |
+
+Good to know while demoing:
+- **Logout** is in the menu under your name (top right).
+- Suspending or deleting an account cancels that person's upcoming trips and bookings.
+- Reviews unlock only after the driver marks the trip as completed.
+
+## 7. Tests
+
+```
+python manage.py test           # 175 tests, about 5 minutes
+python manage.py test trips     # one module only
+```
+
+## 8. Git for the rest of the sprint
+
+- `sprint-1` is the shared, integrated branch; `main` will be updated from it with a pull request.
+- Fix something in your module: commit on `sprint-1` (or on your branch, then open a pull request to `sprint-1`),
+  with a clear message. Commit your migrations.
+- Never commit `db.sqlite3`, `media/`, `private_media/` or `.venv/`.
