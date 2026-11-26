@@ -101,6 +101,38 @@ def complete_trip(trip_pk, user):
 
 
 @transaction.atomic
+def close_user_activity(user):
+    """A user was suspended or deleted (Module 1): nobody should travel with them any more.
+
+    Their upcoming trips are cancelled (with the bookings and chats on them) and their
+    own open bookings are cancelled, giving the seats back. Returns (trips, bookings).
+    """
+    from reservations.models import Reservation, ReservationStatus
+
+    now = timezone.now()
+    trips = list(Trip.objects.select_for_update().filter(
+        driver=user, status__in=[TripStatus.OPEN, TripStatus.FULL], departure_datetime__gt=now))
+    for trip in trips:
+        for reservation in Reservation.objects.filter(trip=trip, status__in=OPEN_BOOKING_STATUSES):
+            reservation.status, reservation.cancelled_at = ReservationStatus.CANCELLED, now
+            reservation.save(update_fields=["status", "cancelled_at", "updated_at"])
+            chat.close_conversation(reservation.pk, "CANCELLED")
+        trip.status, trip.cancelled_at, trip.remaining_seats = TripStatus.CANCELLED, now, 0
+        trip.save(update_fields=["status", "cancelled_at", "remaining_seats", "updated_at"])
+
+    bookings = list(Reservation.objects.select_related("trip").filter(
+        passenger=user, status__in=OPEN_BOOKING_STATUSES, trip__departure_datetime__gt=now))
+    for reservation in bookings:
+        reservation.status, reservation.cancelled_at = ReservationStatus.CANCELLED, now
+        reservation.save(update_fields=["status", "cancelled_at", "updated_at"])
+        chat.close_conversation(reservation.pk, "CANCELLED")
+        trip = _lock(reservation.trip_id)
+        sync_status(trip)
+        trip.save(update_fields=["remaining_seats", "status", "updated_at"])
+    return len(trips), len(bookings)
+
+
+@transaction.atomic
 def delete_trip(trip_pk):
     """Administrator: delete a trip. Its bookings go with it, their chats are closed."""
     from reservations.models import Reservation

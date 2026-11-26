@@ -44,7 +44,8 @@ BADGE = {
 class TripQuerySet(models.QuerySet):
     def bookable(self):
         return self.filter(
-            status=TripStatus.OPEN, remaining_seats__gt=0, departure_datetime__gt=timezone.now()
+            status=TripStatus.OPEN, remaining_seats__gt=0, departure_datetime__gt=timezone.now(),
+            driver__is_active=True,   # suspended / deleted drivers (Module 1) are hidden
         )
 
     def upcoming(self):
@@ -128,7 +129,8 @@ class Trip(models.Model):
 
     @property
     def is_bookable(self):
-        return self.status == TripStatus.OPEN and self.remaining_seats > 0 and not self.has_left
+        return (self.status == TripStatus.OPEN and self.remaining_seats > 0 and not self.has_left
+                and self.driver.is_active)
 
     @property
     def seats_taken(self):

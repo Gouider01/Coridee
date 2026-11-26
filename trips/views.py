@@ -23,6 +23,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from communication.models import Review
 from users.views import admin_required
 from vehicles.models import Vehicle
 
@@ -108,11 +109,25 @@ def detail(request, pk):
         raise Http404
 
     pending = trip.reservations.filter(status="PENDING").count() if is_owner else 0
+
+    # Module 5: after a completed trip, the driver and each passenger review each other.
+    reviewed, review_passengers = set(), []
+    if trip.is_completed:
+        reviewed = set(Review.objects.filter(trip_reference=str(trip.pk), reviewer=user)
+                       .values_list("target_id", flat=True))
+        if is_owner:
+            review_passengers = [
+                (r.passenger, r.passenger_id in reviewed)
+                for r in trip.reservations.select_related("passenger").filter(status="COMPLETED")
+            ]
     return render(request, "trips/detail.html", {
         "trip": trip, "stops": list(trip.stops.all()), "is_owner": is_owner,
         "can_book": user.is_passenger and not is_owner and trip.is_bookable,
         "my_booking": my_booking, "pending_count": pending,
         "show_plate": is_owner or user.is_administrator,
+        "can_review_driver": bool(my_booking and my_booking.status == "COMPLETED"),
+        "reviewed_driver": trip.driver_id in reviewed,
+        "review_passengers": review_passengers,
     })
 
 

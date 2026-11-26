@@ -42,6 +42,8 @@ def check_can_book(user, trip, seats, ignore=None):
         raise ReservationError("Only passengers can book a seat.")
     if trip.driver_id == user.pk:
         raise ReservationError("You cannot book your own trip.")
+    if not trip.driver.is_active:
+        raise ReservationError("This driver's account is no longer active.")
     if trip.status == "CANCELLED":
         raise ReservationError("This trip has been cancelled.")
     if trip.departure_datetime <= timezone.now() or trip.status == "COMPLETED":

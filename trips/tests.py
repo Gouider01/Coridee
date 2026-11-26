@@ -690,3 +690,47 @@ class IntegrationTests(Base):
         self.assertEqual(list(form.fields["vehicle"].queryset), [self.vehicle])
         self.assertEqual(len(stop_formset().forms), 3)
         self.assertEqual(len(stop_formset(instance=make_trip(self.driver)).forms), 2)
+
+
+# --------------------------------------------------------------------------- #
+# Integration with Module 1 (suspended / deleted accounts) and Module 5 (reviews)
+# --------------------------------------------------------------------------- #
+class InactiveAccountTests(Base):
+    def test_suspending_a_driver_cancels_trips_and_hides_them(self):
+        trip = make_trip(self.driver, self.vehicle)
+        booking = book_seats(self.sami, trip.pk, 1)
+        self.client.force_login(self.admin)
+        self.client.post(reverse("users:manage_suspend", args=[self.driver.pk]), {"reason": "Fake documents."})
+        trip.refresh_from_db(); booking.refresh_from_db()
+        self.assertEqual(trip.status, TripStatus.CANCELLED)
+        self.assertEqual(booking.status, ReservationStatus.CANCELLED)
+
+    def test_inactive_driver_trip_not_bookable(self):
+        trip = make_trip(self.driver, self.vehicle)
+        type(self.driver).objects.filter(pk=self.driver.pk).update(is_active=False)
+        self.assertFalse(Trip.objects.bookable().filter(pk=trip.pk).exists())
+        from reservations.services import ReservationError
+        with self.assertRaises(ReservationError):
+            book_seats(self.sami, trip.pk, 1)
+
+    def test_deleting_a_passenger_frees_their_seats(self):
+        trip = make_trip(self.driver, self.vehicle)
+        book_seats(self.sami, trip.pk, 2)
+        self.client.force_login(self.admin)
+        self.client.post(reverse("users:manage_delete", args=[self.sami.pk]))
+        trip.refresh_from_db()
+        self.assertEqual(trip.remaining_seats, trip.seats)
+        self.assertFalse(Reservation.objects.filter(trip=trip, status__in=["PENDING", "ACCEPTED"]).exists())
+
+
+class ReviewLinkTests(Base):
+    def test_completed_trip_links_both_sides_to_reviews(self):
+        trip = make_trip(self.driver, self.vehicle)
+        accept_request(book_seats(self.sami, trip.pk, 1).pk, self.driver)
+        Trip.objects.filter(pk=trip.pk).update(departure_datetime=timezone.now() - timedelta(hours=3))
+        complete_trip(trip.pk, self.driver)
+        page = reverse("trips:detail", args=[trip.pk])
+        self.client.force_login(self.sami)
+        self.assertContains(self.client.get(page), reverse("communication:review_create", args=[trip.pk, self.driver.pk]))
+        self.client.force_login(self.driver)
+        self.assertContains(self.client.get(page), reverse("communication:review_create", args=[trip.pk, self.sami.pk]))

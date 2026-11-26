@@ -400,7 +400,7 @@ class Command(BaseCommand):
           f"chats {Conversation.objects.count()} · messages {Message.objects.count()} · reviews {Review.objects.count()}")
         w("\nWhat to log in as (all @coride.tn):")
         w("  admin    : own inbox (chats with nadia, omar, leila, nour + 'CoRide team' group) · users (verify Rania / Hedi, suspended Marwen), vehicles (accept Nour's, refuse), trips, bookings")
-        w("  leila    : driver, trips in every state, a pending request (Sami), 'Mark as completed' on Tunis→Nabeul")
+        w("  leila    : driver, trips in every state, a pending request (Sami), 'Mark as completed' on Tunis->Nabeul")
         w("  youssef  : driver, FULL trip, a finished trip with reviews")
         w("  amine    : driver with 2 vehicles, cancelled trip, finished trip WITHOUT review (Nour can review him)")
         w("  rania    : driver whose identity check is still pending")

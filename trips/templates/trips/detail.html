@@ -49,6 +49,13 @@
       {% if can_book %}
         <a class="btn btn--primary" href="{% url 'reservations:book' trip.pk %}">Book a seat</a>
       {% endif %}
+      {% if can_review_driver %}
+        {% if reviewed_driver %}
+          <a class="btn btn--secondary" href="{% url 'communication:user_reviews' trip.driver_id %}"><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg>You reviewed {{ trip.driver.first_name }}</a>
+        {% else %}
+          <a class="btn btn--primary" href="{% url 'communication:review_create' trip.pk trip.driver_id %}"><svg class="icon" aria-hidden="true"><use href="#i-star"/></svg>Review {{ trip.driver.first_name }}</a>
+        {% endif %}
+      {% endif %}
       {% if my_booking %}
         <a class="btn btn--secondary" href="{% url 'reservations:detail' my_booking.pk %}">View my booking ({{ my_booking.get_status_display }})</a>
       {% endif %}
@@ -69,5 +76,21 @@
       <p class="small muted mt-4">{% if trip.has_left %}This trip has already left.{% elif trip.status == "FULL" or trip.remaining_seats == 0 %}No seats are left on this trip.{% elif trip.is_completed %}This trip is completed.{% endif %}</p>
     {% endif %}
   </section>
+
+  {% if review_passengers %}
+  <section class="sheet">
+    <div class="sheet__head"><h2 class="sheet__title">Review your passengers</h2></div>
+    <div class="table-wrap"><table class="table">
+      <tbody>
+      {% for person, done in review_passengers %}
+        <tr>
+          <td>{{ person.get_full_name }}</td>
+          <td class="table__end">{% if done %}<span class="muted small">Reviewed</span>{% else %}<a class="btn btn--primary btn--sm" href="{% url 'communication:review_create' trip.pk person.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-star"/></svg>Review</a>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.http import require_POST
 
+from trips.services import close_user_activity
+
 from .forms import (
     AdminUserForm,
     CreateAdminForm,
@@ -125,6 +127,7 @@ def account_delete(request):
     if request.method == "POST" and form.is_valid():
         user = request.user
         logout(request)
+        close_user_activity(user)   # cancel their upcoming trips and bookings (Modules 3-4)
         user.anonymize()
         messages.info(request, "Your account has been deleted. Your personal data and documents were erased.")
         return redirect("home")
@@ -223,6 +226,7 @@ def manage_suspend(request, pk):
     form = SuspendForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         person.suspend(form.cleaned_data["reason"])
+        close_user_activity(person)
         messages.success(request, f"{person.get_full_name()} has been suspended and can no longer log in.")
         return redirect("users:manage_detail", pk=person.pk)
     return render(request, "users/manage/suspend.html", {"form": form, "person": person})
@@ -244,6 +248,7 @@ def manage_delete(request, pk):
         return redirect("users:manage_detail", pk=person.pk)
     if request.method == "POST":
         name = person.get_full_name()
+        close_user_activity(person)
         person.anonymize()
         messages.success(request, f"The account of {name} has been deleted.")
         return redirect("users:manage")
