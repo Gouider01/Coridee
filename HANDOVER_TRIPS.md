@@ -19,6 +19,9 @@
 `trips/{models,services,forms,views,urls,admin,cities,tests}.py`, `trips/templates/trips/*`, `static/trips/trips.css`,
 `trips/management/commands/seed_trips_demo.py`, `trips/migrations/0002_*.py`. `SPRINT_1.md` status updated.
 
+## Demo data
+`uv run manage.py seed_all --reset` seeds every module (see its docstring and the README). `seed_trips_demo` still works on its own.
+
 ## Known / for later (Sprint 2+)
 - Pagination, PDF/Excel export, richer filters (Sprint 2). AI price suggestion (Sprint 3).
 - `Trip.vehicle` is nullable only for legacy/demo rows; the form always requires it.

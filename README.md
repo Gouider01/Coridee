@@ -175,3 +175,10 @@ uv run manage.py runserver
 `db.sqlite3` ships pre-seeded with demo accounts (password `Demo12345!`):
 `admin@coride.tn`, `leila@coride.tn` / `youssef@coride.tn` (drivers), `sami@coride.tn` / `nour@coride.tn` (passengers).
 Log in with the **e-mail address**. To reset: delete `db.sqlite3`, then `uv run manage.py migrate` and `uv run manage.py seed_reservations_demo`.
+
+
+### Full demo data (all modules)
+```
+uv run manage.py seed_all --reset
+```
+Creates 11 accounts (`admin@`, `leila@`, `youssef@`, `amine@`, `rania@`, `sami@`, `nour@`, `karim@`, `ines@`, `hedi@`, `marwen@coride.tn`, password `Demo12345!`), 9 vehicles in every status, 13 trips, 19 bookings, 12 chats and 5 reviews.
