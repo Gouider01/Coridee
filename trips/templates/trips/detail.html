@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ trip.departure_city }} → {{ trip.arrival_city }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'trips/trips.css' %}">{% endblock %}
+{% block content %}
+{% if user.is_administrator %}
+  <a class="crumb" href="{% url 'trips:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All trips</a>
+{% elif is_owner %}
+  <a class="crumb" href="{% url 'trips:mine' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>My trips</a>
+{% else %}
+  <a class="crumb" href="{% url 'trips:index' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>Find a trip</a>
+{% endif %}
+<header class="page-head"><div>
+  <h1 class="page-head__title">{{ trip.departure_city }} → {{ trip.arrival_city }}</h1>
+  <p class="page-head__lede"><span class="badge badge--{{ trip.badge }}">{{ trip.get_status_display }}</span>
+    {{ trip.departure_datetime|date:"l j F Y, H:i" }}</p>
+</div></header>
+
+<div class="stack">
+  {% if trip.is_cancelled %}<div class="alert alert--warning" role="status">This trip has been cancelled by the driver.</div>{% endif %}
+  {% if is_owner and trip.can_complete %}<div class="alert alert--info" role="status">This trip has left. Confirm it took place so passengers can review you.</div>{% endif %}
+
+  <section class="sheet">
+    <div class="sheet__head"><h2 class="sheet__title">Route</h2></div>
+    <ol class="timeline">
+      <li class="timeline__item timeline__item--start"><span class="timeline__city">{{ trip.departure_city }}</span><span class="timeline__tag">Departure · {{ trip.departure_datetime|date:"H:i" }}</span></li>
+      {% for s in stops %}<li class="timeline__item"><span class="timeline__city">{{ s.city }}</span><span class="timeline__tag">Stop</span></li>{% endfor %}
+      <li class="timeline__item timeline__item--end"><span class="timeline__city">{{ trip.arrival_city }}</span><span class="timeline__tag">Arrival</span></li>
+    </ol>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet__head"><h2 class="sheet__title">Details</h2></div>
+    <dl class="dl dl--2">
+      <div class="dl__item"><dt>Driver</dt><dd><span class="verified-inline">{{ trip.driver.get_full_name }}{% if trip.driver.identity_verified %} {% include "partials/_seal.html" with fired=True %}{% endif %}</span></dd></div>
+      <div class="dl__item"><dt>Price per seat</dt><dd>{{ trip.price_per_seat }} TND</dd></div>
+      <div class="dl__item"><dt>Seats left</dt><dd>{{ trip.remaining_seats }} of {{ trip.seats }}</dd></div>
+      {% if trip.vehicle %}
+        <div class="dl__item"><dt>Vehicle</dt><dd>{{ trip.vehicle.brand }} {{ trip.vehicle.model }}, {{ trip.vehicle.color }}{% if show_plate %} · {{ trip.vehicle.plate_number }}{% endif %}</dd></div>
+      {% endif %}
+      {% if trip.notes %}<div class="dl__item"><dt>Notes from the driver</dt><dd>{{ trip.notes }}</dd></div>{% endif %}
+    </dl>
+    {% if is_owner and pending_count %}
+      <p class="small mt-4"><strong>{{ pending_count }}</strong> request{{ pending_count|pluralize }} waiting for your answer. <a href="{% url 'reservations:requests' %}">Open requests</a></p>
+    {% endif %}
+
+    <div class="actions mt-6">
+      {% if can_book %}
+        <a class="btn btn--primary" href="{% url 'reservations:book' trip.pk %}">Book a seat</a>
+      {% endif %}
+      {% if my_booking %}
+        <a class="btn btn--secondary" href="{% url 'reservations:detail' my_booking.pk %}">View my booking ({{ my_booking.get_status_display }})</a>
+      {% endif %}
+      {% if is_owner and trip.can_edit %}
+        <a class="btn btn--secondary" href="{% url 'trips:edit' trip.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg>Edit trip</a>
+      {% endif %}
+      {% if is_owner and trip.can_complete %}
+        <form method="post" action="{% url 'trips:complete' trip.pk %}">{% csrf_token %}<button class="btn btn--primary" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Mark as completed</button></form>
+      {% endif %}
+      {% if is_owner and trip.can_cancel %}
+        <div class="actions__danger"><a class="btn btn--danger" href="{% url 'trips:cancel' trip.pk %}">Cancel trip</a></div>
+      {% endif %}
+      {% if user.is_administrator %}
+        <div class="actions__danger"><a class="btn btn--danger" href="{% url 'trips:manage_delete' trip.pk %}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete</a></div>
+      {% endif %}
+    </div>
+    {% if not can_book and not is_owner and not my_booking and not user.is_administrator and not trip.is_cancelled %}
+      <p class="small muted mt-4">{% if trip.has_left %}This trip has already left.{% elif trip.status == "FULL" or trip.remaining_seats == 0 %}No seats are left on this trip.{% elif trip.is_completed %}This trip is completed.{% endif %}</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+/* Module 3 - trips: route timeline. Uses the shared design tokens only. */
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.timeline__item { position: relative; display: flex; align-items: baseline; gap: var(--s-3); padding: 0 0 var(--s-4) var(--s-6); }
+.timeline__item::before { content: ""; position: absolute; left: 5px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--n-0); border: 3px solid var(--cobalt-700); }
+.timeline__item::after { content: ""; position: absolute; left: 10px; top: 22px; bottom: -3px; width: 2px; background: var(--cobalt-200); }
+.timeline__item:last-child { padding-bottom: 0; }
+.timeline__item:last-child::after { display: none; }
+.timeline__item--end::before, .timeline__item--start::before { background: var(--cobalt-700); }
+.timeline__city { font-weight: 600; color: var(--text); }
+.timeline__tag { font-size: var(--t-sm); color: var(--text-2); }
+.via { display: block; font-size: var(--t-sm); color: var(--text-2); }
+.check-row { display: flex; align-items: center; gap: var(--s-3); }
+.check-row .field { flex: 1; }
+.search-form { display: grid; gap: var(--s-4); padding: var(--s-4); border-bottom: 1px solid var(--line); grid-template-columns: minmax(0, 1fr); align-items: end; }
+@media (min-width: 760px) { .search-form { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; } }

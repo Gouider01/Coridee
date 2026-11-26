@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% if is_edit %}Edit trip{% else %}Publish a trip{% endif %}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'trips/trips.css' %}">{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">{% if is_edit %}Edit your trip{% else %}Publish a trip{% endif %}</h1>
+    <p class="page-head__lede">{% if is_edit %}{{ trip.departure_city }} → {{ trip.arrival_city }} · {{ trip.departure_datetime|date:"j M Y, H:i" }}{% else %}Tell passengers where you go, when, and how much a seat costs.{% endif %}</p>
+  </div>
+  <a class="btn btn--secondary" href="{% if is_edit %}{% url 'trips:detail' trip.pk %}{% else %}{% url 'trips:mine' %}{% endif %}"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back</a>
+</header>
+
+<section class="sheet">
+  <form class="form" method="post" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" with form=form %}
+    {{ stops.management_form }}
+    {% if stops.non_form_errors %}<div class="alert alert--error" role="alert">{% for e in stops.non_form_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">1. Route</legend>
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.departure_city %}
+        {% include "partials/_field.html" with field=form.arrival_city %}
+      </div>
+      <p class="fieldset__hint">Stops on the way (optional, up to 5, in the order you drive). Passengers can board or leave there.</p>
+      <div class="stack stack--sm">
+        {% for f in stops.forms %}
+          {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+          <div class="check-row">
+            {% include "partials/_field.html" with field=f.city %}
+            {% if f.instance.pk %}<label class="check">{{ f.DELETE }} Remove</label>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset__legend">2. When and how</legend>
+      <div class="form-grid form-grid--2">
+        {% include "partials/_field.html" with field=form.departure_datetime %}
+        {% include "partials/_field.html" with field=form.vehicle %}
+        {% include "partials/_field.html" with field=form.seats %}
+        {% include "partials/_field.html" with field=form.price_per_seat %}
+      </div>
+      {% include "partials/_field.html" with field=form.notes %}
+    </fieldset>
+
+    <div class="actions mt-6">
+      <button class="btn btn--primary" type="submit">{% if is_edit %}Save changes{% else %}Publish trip{% endif %}</button>
+      <a class="btn btn--secondary" href="{% if is_edit %}{% url 'trips:detail' trip.pk %}{% else %}{% url 'trips:mine' %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+  {% include "trips/_datalist.html" %}
+</section>
+{% endblock %}

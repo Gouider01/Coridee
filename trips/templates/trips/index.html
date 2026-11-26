@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Find a trip{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'trips/trips.css' %}">{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">Find a trip</h1>
+    <p class="page-head__lede">Search by route and date, then send a request to the driver.</p>
+  </div>
+  <div class="actions">
+    {% if is_driver %}
+      <a class="btn btn--secondary" href="{% url 'trips:mine' %}">My trips</a>
+      <a class="btn btn--secondary" href="{% url 'trips:create' %}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Publish a trip</a>
+    {% else %}
+      <a class="btn btn--secondary" href="{% url 'vehicles:index' %}">Become a driver</a>
+    {% endif %}
+  </div>
+</header>
+
+<section class="sheet sheet--flush">
+  <form class="search-form" method="get" role="search" novalidate>
+    {% include "partials/_field.html" with field=form.from_city %}
+    {% include "partials/_field.html" with field=form.to_city %}
+    {% include "partials/_field.html" with field=form.date %}
+    {% include "partials/_field.html" with field=form.seats %}
+    <div class="actions">
+      <button class="btn btn--primary" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>Search</button>
+      {% if searched %}<a class="btn btn--ghost" href="{% url 'trips:index' %}">Clear</a>{% endif %}
+    </div>
+  </form>
+  {% include "trips/_datalist.html" %}
+
+  {% if trips %}
+  <div class="toolbar"><span class="count">{{ trips|length }} trip{{ trips|length|pluralize }}{% if searched %} match your search{% endif %}</span></div>
+  <div class="table-wrap"><table class="table">
+    <thead><tr>
+      <th scope="col">Route</th><th scope="col">Departure</th>
+      <th scope="col" class="hide-sm">Driver</th><th scope="col">Seats left</th><th scope="col">Price</th>
+      <th scope="col" class="table__end"><span class="visually-hidden">Action</span></th>
+    </tr></thead>
+    <tbody>
+    {% for t in trips %}
+      <tr>
+        <td><a href="{% url 'trips:detail' t.pk %}"><strong>{{ t.departure_city }} → {{ t.arrival_city }}</strong></a>
+          {% with stops=t.stops.all %}{% if stops %}<span class="via">via {% for s in stops %}{{ s.city }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}{% endwith %}</td>
+        <td class="nowrap">{{ t.departure_datetime|date:"D j M, H:i" }}</td>
+        <td class="hide-sm"><span class="verified-inline">{{ t.driver.get_full_name }}{% if t.driver.identity_verified %} {% include "partials/_seal.html" with fired=True %}{% endif %}</span></td>
+        <td>{{ t.remaining_seats }}</td>
+        <td class="nowrap">{{ t.price_per_seat }} TND</td>
+        <td class="table__end"><a class="btn btn--secondary btn--sm" href="{% url 'trips:detail' t.pk %}">View</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="empty">
+    <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-pin"/></svg>
+    <strong>No trip found</strong>
+    <p>{% if searched %}No open trip matches your search. Try another date or city.{% else %}No trip is open for booking right now. Come back soon.{% endif %}</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,10 +1,18 @@
-"""Module 3 - Gestion des trajets  ·  Owner: Wasim Snoussi  ·  Branch: Gestion-Trajets"""
-from django.urls import path  # noqa: F401
+"""Module 3 - routes. `index` feeds the "Find a trip" link of the top bar."""
+from django.urls import path
 
-from . import views  # noqa: F401
+from . import views
 
 app_name = "trips"
 
-# Add this module's routes here, e.g.
-#   path("", views.<Entity>ListView.as_view(), name="<entity>_list"),
-urlpatterns = []
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("new/", views.create, name="create"),
+    path("mine/", views.mine, name="mine"),
+    path("manage/", views.manage, name="manage"),
+    path("manage/<int:pk>/delete/", views.manage_delete, name="manage_delete"),
+    path("<int:pk>/", views.detail, name="detail"),
+    path("<int:pk>/edit/", views.edit, name="edit"),
+    path("<int:pk>/cancel/", views.cancel, name="cancel"),
+    path("<int:pk>/complete/", views.complete, name="complete"),
+]

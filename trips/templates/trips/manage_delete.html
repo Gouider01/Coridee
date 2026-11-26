@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete trip #{{ trip.pk }}{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block content %}
+<a class="crumb" href="{% url 'trips:manage' %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>All trips</a>
+<header class="page-head"><div>
+  <h1 class="page-head__title">Delete this trip?</h1>
+  <p class="page-head__lede">#{{ trip.pk }} · {{ trip.departure_city }} → {{ trip.arrival_city }} · {{ trip.departure_datetime|date:"j M Y, H:i" }} · {{ trip.driver.get_full_name }}</p>
+</div></header>
+<section class="danger-zone">
+  <h2>This cannot be undone</h2>
+  <p>The trip, its stops{% if booking_count %} and its <strong>{{ booking_count }}</strong> booking{{ booking_count|pluralize }}{% endif %} are removed for good. To keep the history, ask the driver to cancel the trip instead.</p>
+  <form method="post" class="actions mt-6">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger-solid"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Delete trip</button>
+    <a class="btn btn--secondary" href="{% url 'trips:manage' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

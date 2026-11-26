@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|
 | 1 | Users | Alaaeddine Guouider | `Gestion-Utilisateurs` | `users/` | ✅ Done, merged into `main` |
 | 2 | Vehicles | Abdallah Salhi | `Gestion-vehicules` | `vehicles/` | ✅ Done, Sprint 1 complete |
-| 3 | Trips | Wasim Snoussi | `Gestion-Trajets` | `trips/` | To do |
+| 3 | Trips | Wasim Snoussi | `Gestion-Trajets` | `trips/` | ✅ Done, Sprint 1 CRUD complete |
 | 4 | Reservations | Selim Aschi | `Gestion-Reservations` | `reservations/` | To do |
 | 5 | Communication & reviews | Ahmed Ridha Lazhari | `Gestion-Communication` | `communication/` | To do |
 
@@ -60,11 +60,11 @@ Sprint 1 = **project structure + full CRUD (create, read, update, delete) on you
 - [x] Validation: Tunisian plate format, year, seats, file type, expiry date
 
 **Module 3 · Trips** (`trips/`)
-- [ ] Models `Trip` and `Stop` (+ status)
-- [ ] A driver creates, views, edits and cancels a trip (route, stops, date, seats, price)
-- [ ] Passengers list and search trips by route and date
-- [ ] Admin: list and delete trips
-- [ ] Validation: departure in the future, seats ≤ vehicle seats, different cities, price > 0
+- [x] Models `Trip` and `Stop` (+ status)
+- [x] A driver creates, views, edits and cancels a trip (route, stops, date, seats, price)
+- [x] Passengers list and search trips by route and date
+- [x] Admin: list and delete trips
+- [x] Validation: departure in the future, seats ≤ vehicle seats, different cities, price > 0
 
 **Module 4 · Reservations** (`reservations/`)
 - [ ] Model `Reservation` (+ statuses)

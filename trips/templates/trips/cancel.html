@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Cancel trip{% endblock %}
+{% block page_class %} page--narrow{% endblock %}
+{% block content %}
+<a class="crumb" href="{% url 'trips:detail' trip.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-left"/></svg>Back to the trip</a>
+<header class="page-head"><div>
+  <h1 class="page-head__title">Cancel this trip?</h1>
+  <p class="page-head__lede">{{ trip.departure_city }} → {{ trip.arrival_city }} · {{ trip.departure_datetime|date:"j M Y, H:i" }}</p>
+</div></header>
+<section class="danger-zone">
+  <h2>Passengers will be told</h2>
+  {% if open_bookings %}
+    <p><strong>{{ open_bookings }}</strong> booking{{ open_bookings|pluralize }} (pending or accepted) will be cancelled and the related chat{{ open_bookings|pluralize }} closed.</p>
+  {% else %}
+    <p>Nobody has booked this trip yet. It will disappear from the search.</p>
+  {% endif %}
+  <form method="post" class="actions mt-6">
+    {% csrf_token %}
+    <button type="submit" class="btn btn--danger-solid">Yes, cancel the trip</button>
+    <a class="btn btn--secondary" href="{% url 'trips:detail' trip.pk %}">Keep it</a>
+  </form>
+</section>
+{% endblock %}

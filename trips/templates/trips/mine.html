@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}My trips{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-head__title">My trips</h1>
+    <p class="page-head__lede">Trips you published as a driver.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn--secondary" href="{% url 'reservations:requests' %}">Requests received</a>
+    <a class="btn btn--primary" href="{% url 'trips:create' %}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Publish a trip</a>
+  </div>
+</header>
+<div class="stats">
+  <div class="stat"><span class="stat__glyph stat__glyph--cobalt"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg></span><div><b>{{ total }}</b><span>Trips published</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--trust"><svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg></span><div><b>{{ upcoming_count }}</b><span>Upcoming</span></div></div>
+  <div class="stat"><span class="stat__glyph stat__glyph--saffron"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg></span><div><b>{{ pending_total }}</b><span>Requests waiting</span></div></div>
+</div>
+<section class="sheet sheet--flush">
+  <form class="toolbar" method="get">
+    <label class="field"><span class="visually-hidden">Status</span>
+      <select name="status" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        {% for value, label in statuses %}<option value="{{ value }}"{% if value == status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <span class="count">{{ trips|length }} of {{ total }}</span>
+  </form>
+  {% if trips %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr>
+      <th scope="col">Route</th><th scope="col">Departure</th><th scope="col">Seats</th><th scope="col" class="hide-sm">Price</th><th scope="col">Status</th>
+      <th scope="col" class="table__end"><span class="visually-hidden">Actions</span></th>
+    </tr></thead>
+    <tbody>
+    {% for t in trips %}
+      <tr>
+        <td><a href="{% url 'trips:detail' t.pk %}"><strong>{{ t.departure_city }} → {{ t.arrival_city }}</strong></a>
+          {% if t.pending %}<span class="via">{{ t.pending }} request{{ t.pending|pluralize }} waiting</span>{% endif %}</td>
+        <td class="nowrap">{{ t.departure_datetime|date:"j M, H:i" }}</td>
+        <td>{{ t.seats_taken }} / {{ t.seats }}</td>
+        <td class="nowrap hide-sm">{{ t.price_per_seat }} TND</td>
+        <td><span class="badge badge--{{ t.badge }}">{{ t.get_status_display }}</span></td>
+        <td class="table__end"><div class="actions" style="justify-content:flex-end">
+          <a class="btn btn--ghost btn--sm" href="{% url 'trips:detail' t.pk %}">View</a>
+          {% if t.can_edit %}<a class="btn btn--secondary btn--sm" href="{% url 'trips:edit' t.pk %}"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-edit"/></svg>Edit</a>{% endif %}
+        </div></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="empty">
+    <svg class="icon" aria-hidden="true" style="width:32px;height:32px"><use href="#i-pin"/></svg>
+    <strong>No trip yet</strong>
+    <p>Publish your first trip and fill the empty seats of your car.</p>
+    <a class="btn btn--primary" href="{% url 'trips:create' %}">Publish a trip</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
