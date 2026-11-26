@@ -8,10 +8,11 @@ It uses the real services (book / accept / refuse / cancel / complete), so chats
 statuses and review unlocking behave exactly like in the app.
 
 What you get
-  Users        admin, 5 drivers-or-passengers verified, 2 waiting for identity check, 1 suspended
+  Users        3 administrators (admin, nadia, omar), verified members, 2 waiting for identity check, 1 suspended
   Vehicles     ACCEPTED, PENDING (all docs / 1 doc), REFUSED (reason), DOCUMENTS_EXPIRED, expiring soon
   Trips        open, full, cancelled, completed (with and without reviews), left-but-not-completed
   Bookings     PENDING, ACCEPTED, REFUSED, CANCELLED, COMPLETED, EXPIRED
+  Admin inbox  admin chats with 2 colleague admins, a driver, a passenger and a team group
   Chats        direct chats with messages + reactions, a closed chat, a group chat
   Reviews      given on completed trips; one completed trip left unreviewed for the review form
 """
@@ -47,6 +48,8 @@ D, V = Document.DocumentType, Vehicle.VehicleStatus
 # key, first, last, type, phone, city, verified, suspended
 USERS = [
     ("admin", "Admin", "CoRide", "ADMINISTRATOR", None, "Tunis", True, False),
+    ("nadia", "Nadia", "Ferchichi", "ADMINISTRATOR", None, "Tunis", True, False),   # support admin
+    ("omar", "Omar", "Dev", "ADMINISTRATOR", None, "Ariana", True, False),          # developer admin
     ("leila", "Leila", "Khemiri", "DRIVER", "22111222", "Tunis", True, False),
     ("youssef", "Youssef", "Haddad", "DRIVER", "23222333", "Sfax", True, False),
     ("amine", "Amine", "Ben Salah", "DRIVER", "26555666", "Tunis", True, False),
@@ -108,6 +111,7 @@ class Command(BaseCommand):
             self.now = timezone.now().replace(minute=0, second=0, microsecond=0)
             self.make_trips_and_bookings()
             Reservation.objects.expire_overdue()
+        self.make_admin_chats()
         self.summary()
 
     # ------------------------------------------------------------------ reset
@@ -154,7 +158,7 @@ class Command(BaseCommand):
         for key, *_rest in USERS:
             _k, _f, _l, _t, _p, _c, verified, suspended = next(u for u in USERS if u[0] == key)
             user = users[key]
-            if verified and not user.identity_verified and key != "admin":
+            if verified and not user.identity_verified and user.user_type != "ADMINISTRATOR":
                 user.verify_identity(admin)
             if suspended and user.account_status != "SUSPENDED":
                 user.suspend("Fake identity photos reported by several members.")
@@ -335,6 +339,58 @@ class Command(BaseCommand):
             Message.objects.filter(pk=msg.pk).update(sent_at=timezone.now() - timedelta(minutes=ago))
         self.group_invite = group.invite_code
 
+    # ---------------------------------------------------------- admin chats
+    def private_chat(self, a, b, lines, title=""):
+        """A private chat that does not come from a reservation (like "New chat" in the app)."""
+        pa, pb = participant_for_user(self.users[a]), participant_for_user(self.users[b])
+        conversation = Conversation.objects.create(
+            chat_type=Conversation.ChatType.PRIVATE, participant_one=pa, participant_two=pb, title=title)
+        conversation.participants.add(pa, pb)
+        for index, (who, text) in enumerate(lines):
+            sender = self.users[a if who == "a" else b]
+            msg = create_message(conversation=conversation, sender=participant_for_user(sender), content=text)
+            Message.objects.filter(pk=msg.pk).update(
+                sent_at=timezone.now() - timedelta(hours=len(lines) - index, minutes=index * 3))
+        return conversation
+
+    def make_admin_chats(self):
+        """Give the administrators a real inbox: colleagues, a driver and a passenger."""
+        admin_p = participant_for_user(self.admin)
+        if Conversation.objects.filter(Q(participant_one=admin_p) | Q(participant_two=admin_p)).exists():
+            return
+        self.private_chat("admin", "nadia", [
+            ("b", "Hi! 3 identity checks are waiting in the queue (Rania, Hedi and one more)."),
+            ("a", "Thanks Nadia, I will take Rania and Hedi this afternoon."),
+            ("b", "Perfect. Marwen was suspended yesterday, fake selfie reported by 3 members."),
+            ("a", "Noted. Please keep the reports in the account notes."),
+            ("b", "Done ✅")])
+        self.private_chat("admin", "omar", [
+            ("b", "Heads up: I deployed the new trips module on staging."),
+            ("a", "Nice. Did you test cancelling a trip that has accepted bookings?"),
+            ("b", "Yes, the bookings are cancelled and the chats get closed."),
+            ("a", "Great. And 'Mark as completed' unlocks the reviews?"),
+            ("b", "It does. I will add the pagination in Sprint 2."),
+            ("a", "Perfect, ping me when the PDF export is ready.")])
+        self.private_chat("admin", "leila", [
+            ("b", "Hello, my insurance renews next week. Can I upload the new one before it expires?"),
+            ("a", "Yes, edit your vehicle and replace the insurance file. We re-check it within 24 hours."),
+            ("b", "Thank you, I will do it today.")])
+        self.private_chat("admin", "nour", [
+            ("b", "Hi, my Renault Clio has been pending for 2 days. Is something missing?"),
+            ("a", "Hello Nour, we are reviewing your documents now. You will be notified shortly."),
+            ("b", "Thanks a lot!")])
+        group = Conversation.objects.create(
+            chat_type=Conversation.ChatType.GROUP, title="CoRide team",
+            participant_one=admin_p)
+        for key in ("admin", "nadia", "omar"):
+            ConversationMembership.objects.get_or_create(
+                conversation=group, participant=participant_for_user(self.users[key]))
+        for key, text, ago in (("omar", "Sprint 1 validation is Friday, please check the demo data.", 300),
+                               ("nadia", "Verification queue is clean on my side.", 240),
+                               ("admin", "Vehicles queue too. Thanks both!", 200)):
+            msg = create_message(conversation=group, sender=participant_for_user(self.users[key]), content=text)
+            Message.objects.filter(pk=msg.pk).update(sent_at=timezone.now() - timedelta(minutes=ago))
+
     # --------------------------------------------------------------- summary
     def summary(self):
         w = self.stdout.write
@@ -343,7 +399,7 @@ class Command(BaseCommand):
           f"trips {Trip.objects.count()} · bookings {Reservation.objects.count()} · "
           f"chats {Conversation.objects.count()} · messages {Message.objects.count()} · reviews {Review.objects.count()}")
         w("\nWhat to log in as (all @coride.tn):")
-        w("  admin    : users (verify Rania / Hedi, suspended Marwen), vehicles (accept Nour's, refuse), trips, bookings")
+        w("  admin    : own inbox (chats with nadia, omar, leila, nour + 'CoRide team' group) · users (verify Rania / Hedi, suspended Marwen), vehicles (accept Nour's, refuse), trips, bookings")
         w("  leila    : driver, trips in every state, a pending request (Sami), 'Mark as completed' on Tunis→Nabeul")
         w("  youssef  : driver, FULL trip, a finished trip with reviews")
         w("  amine    : driver with 2 vehicles, cancelled trip, finished trip WITHOUT review (Nour can review him)")
