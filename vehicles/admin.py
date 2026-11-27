@@ -3,16 +3,30 @@ Module 2 - Gestion des véhicules
 Owner: Abdallah Salhi  ·  Branch: Gestion-vehicules
 """
 from django.contrib import admin
-from django.utils import timezone
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import Document, Vehicle
+
+
+def private_file_link(doc):
+    """Documents live in private storage (no public URL): the default file widget
+    would crash, so link to the protected view instead."""
+    if not doc or not doc.pk or not doc.file:
+        return "-"
+    url = reverse("vehicles:document_file", args=[doc.pk])
+    return format_html('<a href="{}" target="_blank" rel="noopener">Open (private file)</a>', url)
 
 
 class DocumentInline(admin.TabularInline):
     model = Document
     extra = 0
-    fields = ("document_type", "number", "expiry_date", "file", "status")
-    readonly_fields = ("uploaded_at",)
+    fields = ("document_type", "number", "expiry_date", "file_link", "status")
+    readonly_fields = ("file_link", "uploaded_at")
+
+    @admin.display(description="file")
+    def file_link(self, obj):
+        return private_file_link(obj)
 
 
 @admin.register(Vehicle)
@@ -50,13 +64,12 @@ class VehicleAdmin(admin.ModelAdmin):
 
     @admin.action(description="Refuse selected vehicles")
     def refuse_selected_vehicles(self, request, queryset):
-        queryset.update(
-            status=Vehicle.VehicleStatus.REFUSED,
-            rejection_reason="Refused via admin action.",
-            verified_at=timezone.now(),
-            verified_by=request.user,
-        )
-        self.message_user(request, f"{queryset.count()} vehicle(s) refused.")
+        # Go through the model so the same rules apply as in /vehicles/manage/.
+        count = 0
+        for vehicle in queryset:
+            vehicle.refuse("Refused by an administrator.", admin=request.user)
+            count += 1
+        self.message_user(request, f"{count} vehicle(s) refused.")
 
 
 @admin.register(Document)
@@ -71,3 +84,9 @@ class DocumentAdmin(admin.ModelAdmin):
     )
     list_filter = ("document_type", "status")
     search_fields = ("vehicle__plate_number", "number", "vehicle__owner__email")
+    exclude = ("file",)
+    readonly_fields = ("file_link",)
+
+    @admin.display(description="file")
+    def file_link(self, obj):
+        return private_file_link(obj)
